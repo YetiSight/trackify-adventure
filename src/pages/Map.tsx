@@ -8,41 +8,45 @@ import { useArduinoStore } from "@/services/ArduinoService";
 import { Compass, Locate, Map as MapIcon, Navigation } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Map: React.FC = () => {
   const { sensorData, connectionState } = useArduinoStore();
   const displayData = sensorData || getCurrentSensorData();
+  const isMobile = useIsMobile();
   
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold">Mappa</h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
+            <h1 className="text-2xl sm:text-3xl font-bold">Mappa</h1>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
               Tracciamento in tempo reale e percorsi
             </p>
           </div>
           
-          <div className="flex space-x-2">
-            <Button size="sm" variant="outline">
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+            <Button size={isMobile ? "sm" : "default"} variant="outline" className="flex-1 sm:flex-auto">
               <Locate className="h-4 w-4 mr-1" />
               Centrami
             </Button>
             
-            <Button size="sm" variant="outline">
+            <Button size={isMobile ? "sm" : "default"} variant="outline" className="flex-1 sm:flex-auto">
               <MapIcon className="h-4 w-4 mr-1" />
               Cambia Vista
             </Button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 lg:row-span-2">
             <MapView />
           </div>
           
-          <ArduinoConnect />
+          <div className="order-first lg:order-none mb-2 lg:mb-0">
+            <ArduinoConnect />
+          </div>
           
           <Card>
             <CardContent className="p-4">

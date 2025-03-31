@@ -22,29 +22,29 @@ const MapView = () => {
   // Here we're showing a placeholder with coordinates
   const renderMapPlaceholder = () => {
     return (
-      <div className="relative w-full h-[400px] bg-snow-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden rounded-lg">
-        <div className="text-center z-10 bg-white/80 dark:bg-gray-800/80 p-6 rounded-lg">
+      <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] bg-snow-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden rounded-lg">
+        <div className="text-center z-10 bg-white/80 dark:bg-gray-800/80 p-4 sm:p-6 rounded-lg max-w-[90%]">
           {connectionState === "connected" ? (
             <>
-              <h3 className="text-2xl font-semibold text-snow-800 dark:text-snow-200 mb-2">
+              <h3 className="text-xl sm:text-2xl font-semibold text-snow-800 dark:text-snow-200 mb-2">
                 Dati GPS in tempo reale
               </h3>
-              <p className="text-snow-600 dark:text-snow-400 mb-4">
+              <p className="text-sm sm:text-base text-snow-600 dark:text-snow-400 mb-4">
                 Connessione ad Arduino stabilita! Ricevendo dati GPS...
               </p>
             </>
           ) : (
             <>
-              <h3 className="text-2xl font-semibold text-snow-800 dark:text-snow-200 mb-2">
+              <h3 className="text-xl sm:text-2xl font-semibold text-snow-800 dark:text-snow-200 mb-2">
                 Mappa in caricamento
               </h3>
-              <p className="text-snow-600 dark:text-snow-400 mb-4">
+              <p className="text-sm sm:text-base text-snow-600 dark:text-snow-400 mb-4">
                 Connetti Arduino per visualizzare dati in tempo reale
               </p>
             </>
           )}
           
-          <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 text-xs sm:text-sm">
             <div className="bg-white dark:bg-gray-700 p-2 rounded">
               <div className="text-gray-500 dark:text-gray-400">Latitudine</div>
               <div className="font-mono font-medium">
@@ -85,7 +85,7 @@ const MapView = () => {
                 left: `${50 - Math.random() * 10}%`,
                 animation: "pulse 2s infinite"
               }}>
-            <MapPin className="h-8 w-8 text-alpine-600" />
+            <MapPin className="h-6 w-6 sm:h-8 sm:w-8 text-alpine-600" />
           </div>
         </div>
       </div>
@@ -95,7 +95,7 @@ const MapView = () => {
   return (
     <Card>
       <CardContent className="p-0">
-        <div className="map-container">
+        <div className="map-container w-full overflow-hidden">
           {renderMapPlaceholder()}
         </div>
       </CardContent>
