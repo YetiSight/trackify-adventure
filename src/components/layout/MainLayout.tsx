@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
@@ -7,7 +8,8 @@ import {
   Home, 
   Bell, 
   Menu, 
-  X 
+  X,
+  Users
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -41,6 +43,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       name: "Mappa",
       path: "/map",
       icon: <Compass className="h-5 w-5" />
+    },
+    {
+      name: "Social",
+      path: "/social",
+      icon: <Users className="h-5 w-5" />
     },
     {
       name: "Profilo",
