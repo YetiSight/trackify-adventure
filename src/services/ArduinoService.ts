@@ -39,7 +39,7 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
         toast({
           title: "Connessione stabilita",
           description: "Arduino è ora connesso",
-          variant: "success",
+          variant: "default",
         });
       };
       

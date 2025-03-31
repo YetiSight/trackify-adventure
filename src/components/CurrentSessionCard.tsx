@@ -43,10 +43,10 @@ const CurrentSessionCard: React.FC<CurrentSessionCardProps> = ({ sensorData: pro
                 <h4 className="font-medium">Velocità</h4>
               </div>
               <span className="text-2xl font-bold text-snow-700 dark:text-snow-300">
-                {sensorData.gps.speed.toFixed(1)} <span className="text-sm font-normal">km/h</span>
+                {displayData.gps.speed.toFixed(1)} <span className="text-sm font-normal">km/h</span>
               </span>
             </div>
-            <Progress value={(sensorData.gps.speed / 100) * 100} className="h-1.5" />
+            <Progress value={(displayData.gps.speed / 100) * 100} className="h-1.5" />
           </div>
 
           <div className="bg-snow-50 dark:bg-gray-800 p-4 rounded-lg">
@@ -56,10 +56,10 @@ const CurrentSessionCard: React.FC<CurrentSessionCardProps> = ({ sensorData: pro
                 <h4 className="font-medium">Altitudine</h4>
               </div>
               <span className="text-2xl font-bold text-snow-700 dark:text-snow-300">
-                {sensorData.imu.altitude} <span className="text-sm font-normal">m</span>
+                {displayData.imu.altitude} <span className="text-sm font-normal">m</span>
               </span>
             </div>
-            <Progress value={(sensorData.imu.altitude / 3000) * 100} className="h-1.5" />
+            <Progress value={(displayData.imu.altitude / 3000) * 100} className="h-1.5" />
           </div>
         </div>
 
@@ -72,15 +72,15 @@ const CurrentSessionCard: React.FC<CurrentSessionCardProps> = ({ sensorData: pro
             <div className="grid grid-cols-3 gap-2">
               <div>
                 <span className="text-xs text-gray-500 block">Roll</span>
-                <span className="font-medium">{sensorData.imu.orientation.roll.toFixed(1)}°</span>
+                <span className="font-medium">{displayData.imu.orientation.roll.toFixed(1)}°</span>
               </div>
               <div>
                 <span className="text-xs text-gray-500 block">Pitch</span>
-                <span className="font-medium">{sensorData.imu.orientation.pitch.toFixed(1)}°</span>
+                <span className="font-medium">{displayData.imu.orientation.pitch.toFixed(1)}°</span>
               </div>
               <div>
                 <span className="text-xs text-gray-500 block">Direzione</span>
-                <span className="font-medium">{sensorData.gps.heading.toFixed(0)}°</span>
+                <span className="font-medium">{displayData.gps.heading.toFixed(0)}°</span>
               </div>
             </div>
           </div>
@@ -93,15 +93,15 @@ const CurrentSessionCard: React.FC<CurrentSessionCardProps> = ({ sensorData: pro
             <div className="grid grid-cols-3 gap-2 text-xs">
               <div>
                 <span className="text-gray-500 block">Lat</span>
-                <span className="font-medium">{sensorData.gps.position.lat.toFixed(4)}</span>
+                <span className="font-medium">{displayData.gps.position.lat.toFixed(4)}</span>
               </div>
               <div>
                 <span className="text-gray-500 block">Lng</span>
-                <span className="font-medium">{sensorData.gps.position.lng.toFixed(4)}</span>
+                <span className="font-medium">{displayData.gps.position.lng.toFixed(4)}</span>
               </div>
               <div>
                 <span className="text-gray-500 block">Precisione</span>
-                <span className="font-medium">±{sensorData.gps.accuracy}m</span>
+                <span className="font-medium">±{displayData.gps.accuracy}m</span>
               </div>
             </div>
           </div>
@@ -115,8 +115,8 @@ const CurrentSessionCard: React.FC<CurrentSessionCardProps> = ({ sensorData: pro
           <div className="grid grid-cols-2 gap-4">
             <div>
               <span className="text-xs text-gray-500 block">Distanza oggetti</span>
-              <span className="font-medium">{(sensorData.ultrasonic.distance / 100).toFixed(1)}m</span>
-              {sensorData.ultrasonic.distance < 300 && (
+              <span className="font-medium">{(displayData.ultrasonic.distance / 100).toFixed(1)}m</span>
+              {displayData.ultrasonic.distance < 300 && (
                 <span className="ml-2 text-xs px-2 py-0.5 bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300 rounded-full">
                   Vicino!
                 </span>
@@ -125,7 +125,7 @@ const CurrentSessionCard: React.FC<CurrentSessionCardProps> = ({ sensorData: pro
             <div>
               <span className="text-xs text-gray-500 block">Movimento rilevato</span>
               <span className="font-medium">
-                {sensorData.pir.detected ? (
+                {displayData.pir.detected ? (
                   <span className="text-amber-600 dark:text-amber-400">Sì</span>
                 ) : (
                   <span className="text-gray-500">No</span>
