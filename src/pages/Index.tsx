@@ -1,13 +1,78 @@
-// Update this page (the content is just a fallback if you fail to update the page)
 
-const Index = () => {
+import React from "react";
+import MainLayout from "@/components/layout/MainLayout";
+import { 
+  getCurrentUser, 
+  getUserSessions, 
+  getCurrentSensorData,
+  getNotifications
+} from "@/utils/mockData";
+import { Activity, Map, Ruler, Navigation } from "lucide-react";
+import StatCard from "@/components/StatCard";
+import MapView from "@/components/MapView";
+import CurrentSessionCard from "@/components/CurrentSessionCard";
+import NotificationsCard from "@/components/NotificationsCard";
+
+const Index: React.FC = () => {
+  const currentUser = getCurrentUser();
+  const sessions = getUserSessions(currentUser.id);
+  const sensorData = getCurrentSensorData();
+  const notifications = getNotifications();
+  
+  // Calcola la distanza attuale dalla sessione fittizia in corso
+  const currentSessionDistance = sensorData.gps.speed * 0.5 / 60; // km (velocità × tempo in ore)
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+    <MainLayout>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold">Ciao, {currentUser.name.split(' ')[0]}!</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
+            Ecco i tuoi dati di tracciamento in tempo reale
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard 
+            title="Distanza attuale" 
+            value={`${currentSessionDistance.toFixed(2)} km`} 
+            icon={<Ruler className="h-5 w-5 text-snow-600" />}
+            trend={{ value: 5.2, isPositive: true }}
+          />
+          
+          <StatCard 
+            title="Velocità attuale" 
+            value={`${sensorData.gps.speed.toFixed(1)} km/h`} 
+            icon={<Activity className="h-5 w-5 text-snow-600" />}
+            trend={{ value: 3.8, isPositive: true }}
+          />
+          
+          <StatCard 
+            title="Altitudine" 
+            value={`${sensorData.imu.altitude} m`} 
+            icon={<Map className="h-5 w-5 text-snow-600" />}
+            trend={{ value: 2.1, isPositive: false }}
+          />
+          
+          <StatCard 
+            title="Direzione" 
+            value={`${sensorData.gps.heading}°`} 
+            icon={<Navigation className="h-5 w-5 text-snow-600" />}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <MapView />
+          </div>
+          
+          <div className="space-y-6">
+            <CurrentSessionCard sensorData={sensorData} />
+            <NotificationsCard notifications={notifications.slice(0, 3)} />
+          </div>
+        </div>
       </div>
-    </div>
+    </MainLayout>
   );
 };
 

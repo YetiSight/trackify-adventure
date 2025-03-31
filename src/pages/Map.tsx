@@ -1,0 +1,115 @@
+
+import React from "react";
+import MainLayout from "@/components/layout/MainLayout";
+import MapView from "@/components/MapView";
+import { getCurrentSensorData } from "@/utils/mockData";
+import { Compass, Locate, Map as MapIcon, Navigation } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+
+const Map: React.FC = () => {
+  const sensorData = getCurrentSensorData();
+  
+  return (
+    <MainLayout>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">Mappa</h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              Tracciamento in tempo reale e percorsi
+            </p>
+          </div>
+          
+          <div className="flex space-x-2">
+            <Button size="sm" variant="outline">
+              <Locate className="h-4 w-4 mr-1" />
+              Centrami
+            </Button>
+            
+            <Button size="sm" variant="outline">
+              <MapIcon className="h-4 w-4 mr-1" />
+              Cambia Vista
+            </Button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 lg:row-span-2">
+            <MapView />
+          </div>
+          
+          <Card>
+            <CardContent className="p-4">
+              <h3 className="text-lg font-semibold mb-3">Coordinate GPS</h3>
+              
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">Latitudine</span>
+                  <span className="font-medium">{sensorData.gps.position.lat.toFixed(6)}°</span>
+                </div>
+                
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">Longitudine</span>
+                  <span className="font-medium">{sensorData.gps.position.lng.toFixed(6)}°</span>
+                </div>
+                
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">Altitudine</span>
+                  <span className="font-medium">{sensorData.gps.position.altitude} m</span>
+                </div>
+                
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">Precisione</span>
+                  <span className="font-medium">±{sensorData.gps.accuracy} m</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-4">
+              <h3 className="text-lg font-semibold mb-3">Orientamento</h3>
+              
+              <div className="flex justify-center mb-4">
+                <div className="relative w-24 h-24">
+                  <div className="absolute inset-0 rounded-full border-2 border-snow-200 dark:border-gray-700"></div>
+                  <div 
+                    className="absolute w-1 h-12 bg-alpine-600 rounded-full top-0 left-1/2 -ml-0.5 origin-bottom"
+                    style={{ transform: `rotate(${sensorData.gps.heading}deg)` }}
+                  ></div>
+                  <div className="absolute top-2 left-1/2 -ml-1.5 text-xs font-semibold">N</div>
+                  <div className="absolute bottom-2 left-1/2 -ml-1.5 text-xs font-semibold">S</div>
+                  <div className="absolute left-2 top-1/2 -mt-1.5 text-xs font-semibold">W</div>
+                  <div className="absolute right-2 top-1/2 -mt-1.5 text-xs font-semibold">E</div>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">Direzione</span>
+                  <span className="font-medium flex items-center">
+                    <Navigation className="h-4 w-4 mr-1 text-snow-600" />
+                    {sensorData.gps.heading}°
+                  </span>
+                </div>
+                
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">Pitch</span>
+                  <span className="font-medium">{sensorData.imu.orientation.pitch.toFixed(1)}°</span>
+                </div>
+                
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">Roll</span>
+                  <span className="font-medium">{sensorData.imu.orientation.roll.toFixed(1)}°</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </MainLayout>
+  );
+};
+
+export default Map;
