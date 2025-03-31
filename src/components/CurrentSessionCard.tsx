@@ -1,20 +1,38 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { SensorData } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Gauge, Thermometer, Navigation, LocateFixed } from "lucide-react";
+import { useArduinoStore } from "@/services/ArduinoService";
+import { getCurrentSensorData } from "@/utils/mockData";
 
 interface CurrentSessionCardProps {
-  sensorData: SensorData;
+  sensorData?: SensorData;
 }
 
-const CurrentSessionCard: React.FC<CurrentSessionCardProps> = ({ sensorData }) => {
+const CurrentSessionCard: React.FC<CurrentSessionCardProps> = ({ sensorData: propsSensorData }) => {
+  const { sensorData: arduinoData, connectionState } = useArduinoStore();
+  const [displayData, setDisplayData] = useState<SensorData>(propsSensorData || getCurrentSensorData());
+  
+  useEffect(() => {
+    if (connectionState === "connected" && arduinoData) {
+      setDisplayData(arduinoData);
+    } else if (propsSensorData) {
+      setDisplayData(propsSensorData);
+    }
+  }, [arduinoData, propsSensorData, connectionState]);
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Sessione Attuale</CardTitle>
-        <CardDescription>Dati in tempo reale dai sensori</CardDescription>
+        <CardDescription>
+          {connectionState === "connected" 
+            ? "Dati in tempo reale da Arduino" 
+            : "Dati simulati dai sensori"
+          }
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

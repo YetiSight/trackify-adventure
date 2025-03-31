@@ -2,13 +2,16 @@
 import React from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import MapView from "@/components/MapView";
+import ArduinoConnect from "@/components/ArduinoConnect";
 import { getCurrentSensorData } from "@/utils/mockData";
+import { useArduinoStore } from "@/services/ArduinoService";
 import { Compass, Locate, Map as MapIcon, Navigation } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 const Map: React.FC = () => {
-  const sensorData = getCurrentSensorData();
+  const { sensorData, connectionState } = useArduinoStore();
+  const displayData = sensorData || getCurrentSensorData();
   
   return (
     <MainLayout>
@@ -39,33 +42,7 @@ const Map: React.FC = () => {
             <MapView />
           </div>
           
-          <Card>
-            <CardContent className="p-4">
-              <h3 className="text-lg font-semibold mb-3">Coordinate GPS</h3>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">Latitudine</span>
-                  <span className="font-medium">{sensorData.gps.position.lat.toFixed(6)}°</span>
-                </div>
-                
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">Longitudine</span>
-                  <span className="font-medium">{sensorData.gps.position.lng.toFixed(6)}°</span>
-                </div>
-                
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">Altitudine</span>
-                  <span className="font-medium">{sensorData.gps.position.altitude} m</span>
-                </div>
-                
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">Precisione</span>
-                  <span className="font-medium">±{sensorData.gps.accuracy} m</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <ArduinoConnect />
           
           <Card>
             <CardContent className="p-4">
@@ -76,7 +53,7 @@ const Map: React.FC = () => {
                   <div className="absolute inset-0 rounded-full border-2 border-snow-200 dark:border-gray-700"></div>
                   <div 
                     className="absolute w-1 h-12 bg-alpine-600 rounded-full top-0 left-1/2 -ml-0.5 origin-bottom"
-                    style={{ transform: `rotate(${sensorData.gps.heading}deg)` }}
+                    style={{ transform: `rotate(${displayData.gps.heading}deg)` }}
                   ></div>
                   <div className="absolute top-2 left-1/2 -ml-1.5 text-xs font-semibold">N</div>
                   <div className="absolute bottom-2 left-1/2 -ml-1.5 text-xs font-semibold">S</div>
@@ -90,18 +67,18 @@ const Map: React.FC = () => {
                   <span className="text-gray-600 dark:text-gray-400">Direzione</span>
                   <span className="font-medium flex items-center">
                     <Navigation className="h-4 w-4 mr-1 text-snow-600" />
-                    {sensorData.gps.heading}°
+                    {displayData.gps.heading}°
                   </span>
                 </div>
                 
                 <div className="flex justify-between">
                   <span className="text-gray-600 dark:text-gray-400">Pitch</span>
-                  <span className="font-medium">{sensorData.imu.orientation.pitch.toFixed(1)}°</span>
+                  <span className="font-medium">{displayData.imu.orientation.pitch.toFixed(1)}°</span>
                 </div>
                 
                 <div className="flex justify-between">
                   <span className="text-gray-600 dark:text-gray-400">Roll</span>
-                  <span className="font-medium">{sensorData.imu.orientation.roll.toFixed(1)}°</span>
+                  <span className="font-medium">{displayData.imu.orientation.roll.toFixed(1)}°</span>
                 </div>
               </div>
             </CardContent>
