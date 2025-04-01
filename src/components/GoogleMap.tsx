@@ -1,6 +1,6 @@
-
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { Card, CardContent } from './ui/card';
+import { MapPin } from 'lucide-react';
 
 interface GoogleMapProps {
   location: {
@@ -12,64 +12,64 @@ interface GoogleMapProps {
 }
 
 const GoogleMap: React.FC<GoogleMapProps> = ({ location, title, zoom = 15 }) => {
-  const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstance = useRef<google.maps.Map | null>(null);
-
-  useEffect(() => {
-    // Function to initialize the map
-    const initMap = () => {
-      if (mapRef.current && !mapInstance.current) {
-        mapInstance.current = new google.maps.Map(mapRef.current, {
-          center: location,
-          zoom: zoom,
-          mapTypeControl: false,
-          fullscreenControl: true,
-          streetViewControl: false,
-          zoomControl: true,
-        });
-
-        // Add a marker for the location
-        new google.maps.Marker({
-          position: location,
-          map: mapInstance.current,
-          title: title,
-          animation: google.maps.Animation.DROP,
-        });
-      }
-    };
-
-    // Load Google Maps API if not already loaded
-    if (window.google && window.google.maps) {
-      initMap();
-    } else {
-      const googleMapsApiKey = 'YOUR_API_KEY_HERE'; // Replace with your Google Maps API key
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&callback=initGoogleMap`;
-      script.async = true;
-      script.defer = true;
-      
-      // Add the callback function to window object
-      window.initGoogleMap = initMap;
-      document.head.appendChild(script);
-      
-      return () => {
-        // Clean up
-        if (window.initGoogleMap) {
-          delete window.initGoogleMap;
-        }
-        document.head.removeChild(script);
-      };
-    }
-  }, [location, title, zoom]);
+  // Simple location visualization without using Google Maps API
+  const mapSize = 600; // Size of the virtual map in pixels
+  const mapCenter = { x: mapSize / 2, y: mapSize / 2 };
+  
+  // Calculate position based on latitude and longitude
+  // This is a very simplified positioning - not accurate for real maps
+  // It just shows a marker at a relative position based on the coordinates
+  const markerPosition = {
+    x: mapCenter.x + (location.lng * 2), // Simple scaling for visualization
+    y: mapCenter.y - (location.lat * 2)  // Inverted because latitude increases northward
+  };
+  
+  // Keep marker within bounds
+  const clampedPosition = {
+    x: Math.max(20, Math.min(markerPosition.x, mapSize - 20)),
+    y: Math.max(20, Math.min(markerPosition.y, mapSize - 20))
+  };
+  
+  // Calculate percentage position for the marker
+  const percentX = (clampedPosition.x / mapSize) * 100;
+  const percentY = (clampedPosition.y / mapSize) * 100;
 
   return (
     <Card>
       <CardContent className="p-0 overflow-hidden">
         <div 
-          ref={mapRef} 
-          className="h-64 w-full rounded-md" 
+          className="h-64 w-full rounded-md relative bg-slate-100 dark:bg-slate-800"
           aria-label={`Map showing the location of ${title}`}
-        />
+        >
+          {/* Simple world map grid background */}
+          <div className="absolute inset-0 grid grid-cols-8 grid-rows-6">
+            {Array(48).fill(0).map((_, i) => (
+              <div key={i} className="border border-slate-200 dark:border-slate-700" />
+            ))}
+          </div>
+          
+          {/* Location marker */}
+          <div 
+            className="absolute transform -translate-x-1/2 -translate-y-1/2"
+            style={{ 
+              left: `${percentX}%`, 
+              top: `${percentY}%` 
+            }}
+          >
+            <div className="flex flex-col items-center">
+              <MapPin className="h-8 w-8 text-red-500" />
+              <div className="bg-white dark:bg-slate-900 shadow-md rounded-md p-1 text-xs mt-1">
+                {title}
+              </div>
+            </div>
+          </div>
+          
+          {/* Location information */}
+          <div className="absolute bottom-0 left-0 right-0 bg-white/80 dark:bg-slate-900/80 p-2 text-xs">
+            <div className="font-semibold">{title}</div>
+            <div>Lat: {location.lat.toFixed(4)}, Lng: {location.lng.toFixed(4)}</div>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
