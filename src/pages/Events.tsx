@@ -17,21 +17,22 @@ import { Separator } from "@/components/ui/separator";
 import { getAllEvents, getAllSkiResorts, getEventsByResort } from "@/utils/mockData";
 import { Event } from "@/types";
 
+// Helper function to format dates
+const formatEventDate = (dateStr: string) => {
+  try {
+    return format(parseISO(dateStr), "d MMMM yyyy", { locale: it });
+  } catch (error) {
+    console.error("Error formatting date:", error);
+    return dateStr;
+  }
+};
+
 const Events: React.FC = () => {
   const allResorts = getAllSkiResorts();
   const [selectedResort, setSelectedResort] = useState<string>(allResorts[0] || "");
   
   // Get events for the selected resort, or all events if no resort is selected
   const events = selectedResort ? getEventsByResort(selectedResort) : getAllEvents();
-
-  const formatEventDate = (dateStr: string) => {
-    try {
-      return format(parseISO(dateStr), "d MMMM yyyy", { locale: it });
-    } catch (error) {
-      console.error("Error formatting date:", error);
-      return dateStr;
-    }
-  };
 
   return (
     <MainLayout>
