@@ -345,6 +345,23 @@ export const mockEvents: Event[] = [
   }
 ];
 
+export const events = mockEvents;
+
+events.forEach((event, index) => {
+  // Coordinate di esempio per vari impianti sciistici
+  const sampleLocations = [
+    { lat: 46.5295, lng: 11.9363 }, // Val Gardena
+    { lat: 46.4039, lng: 11.8735 }, // Canazei
+    { lat: 46.5404, lng: 10.1350 }, // Bormio
+    { lat: 45.9372, lng: 6.8697 },  // Chamonix
+    { lat: 45.0081, lng: 6.1183 },  // Sestriere
+    { lat: 46.2150, lng: 10.0872 }, // Ponte di Legno
+  ];
+  
+  const locationIndex = index % sampleLocations.length;
+  event.location = sampleLocations[locationIndex];
+});
+
 export const getCurrentUser = (): User => mockUsers[0];
 
 export const getAllUsers = (): User[] => mockUsers;

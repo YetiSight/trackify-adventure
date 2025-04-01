@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { format, parseISO } from "date-fns";
@@ -12,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { getEventById } from "@/utils/mockData";
 import { toast } from "sonner";
+import GoogleMap from "@/components/GoogleMap";
 
 // Helper function to format dates
 const formatEventDate = (dateStr: string) => {
@@ -252,20 +252,27 @@ const EventDetail: React.FC = () => {
               </CardFooter>
             </Card>
             
-            {/* Map or location card - placeholder for future implementation */}
+            {/* Map location card */}
             <Card>
               <CardHeader>
                 <h2 className="text-xl font-bold">Luogo dell'evento</h2>
               </CardHeader>
               
-              <CardContent>
-                <div className="bg-muted/50 h-48 flex items-center justify-center rounded-lg">
-                  <p className="text-muted-foreground text-center">
-                    <MapPin className="w-6 h-6 mx-auto mb-2" />
-                    {event.meetingPoint}<br/>
-                    {event.skiResort}
-                  </p>
-                </div>
+              <CardContent className="p-0">
+                {event.location ? (
+                  <GoogleMap 
+                    location={event.location} 
+                    title={`${event.title} - ${event.meetingPoint}`} 
+                  />
+                ) : (
+                  <div className="bg-muted/50 h-48 flex items-center justify-center rounded-lg p-4">
+                    <p className="text-muted-foreground text-center">
+                      <MapPin className="w-6 h-6 mx-auto mb-2" />
+                      {event.meetingPoint}<br/>
+                      {event.skiResort}
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

@@ -87,6 +87,10 @@ export interface Event {
   meetingPoint: string;
   sponsor: Sponsor;
   image?: string;
+  location?: {
+    lat: number;
+    lng: number;
+  };
 }
 
 export interface Sponsor {
