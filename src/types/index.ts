@@ -76,3 +76,22 @@ export interface SensorData {
     accuracy: number; // in meters
   };
 }
+
+export interface Event {
+  id: string;
+  title: string;
+  description: string;
+  date: string; // ISO date string
+  time: string; // Format: "HH:MM"
+  skiResort: string;
+  meetingPoint: string;
+  sponsor: Sponsor;
+  image?: string;
+}
+
+export interface Sponsor {
+  id: string;
+  name: string;
+  logo: string;
+  color?: string; // Brand color for UI customization
+}

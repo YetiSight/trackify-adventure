@@ -9,7 +9,8 @@ import {
   Bell, 
   Menu, 
   X,
-  Users
+  Users,
+  Calendar
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -43,6 +44,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       name: "Mappa",
       path: "/map",
       icon: <Compass className="h-5 w-5" />
+    },
+    {
+      name: "Eventi",
+      path: "/events",
+      icon: <Calendar className="h-5 w-5" />
     },
     {
       name: "Social",

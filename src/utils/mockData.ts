@@ -1,5 +1,4 @@
-
-import { User, Session, Notification, SensorData } from "../types";
+import { User, Session, Notification, SensorData, Event, Sponsor } from "../types";
 
 export const mockUsers: User[] = [
   {
@@ -242,6 +241,102 @@ export const mockCurrentSensorData: SensorData = {
   }
 };
 
+export const mockSponsors: Sponsor[] = [
+  {
+    id: "s1",
+    name: "Red Bull",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Red_Bull_logo.svg/1200px-Red_Bull_logo.svg.png",
+    color: "#1E2759"
+  },
+  {
+    id: "s2",
+    name: "The North Face",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/The_North_Face_logo.svg/2560px-The_North_Face_logo.svg.png",
+    color: "#000000"
+  },
+  {
+    id: "s3",
+    name: "Salomon",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Salomon_logo.svg/2560px-Salomon_logo.svg.png",
+    color: "#1A1A1A"
+  },
+  {
+    id: "s4",
+    name: "GoPro",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/GoPro_logo.svg/2560px-GoPro_logo.svg.png",
+    color: "#00A3E1"
+  }
+];
+
+export const mockEvents: Event[] = [
+  {
+    id: "e1",
+    title: "Gara di discesa libera SafeSight",
+    description: "Partecipa alla gara di discesa libera sponsorizzata da Red Bull. Premi per i primi 3 classificati. Registra la tua discesa con l'app SafeSight!",
+    date: "2024-07-15",
+    time: "10:00",
+    skiResort: "Cortina d'Ampezzo",
+    meetingPoint: "Stazione di partenza Ski Area Faloria",
+    sponsor: mockSponsors[0],
+    image: "https://images.unsplash.com/photo-1519677583113-44abba31621b"
+  },
+  {
+    id: "e2",
+    title: "Workshop Sicurezza in montagna",
+    description: "Workshop gratuito sulla sicurezza in montagna con esperti del settore. Impara a utilizzare SafeSight per aumentare la tua sicurezza sulle piste.",
+    date: "2024-07-20",
+    time: "14:30",
+    skiResort: "Cortina d'Ampezzo",
+    meetingPoint: "Centro servizi Ski Area Tofana",
+    sponsor: mockSponsors[1],
+    image: "https://images.unsplash.com/photo-1506197061617-7f5c0b093236"
+  },
+  {
+    id: "e3",
+    title: "SafeSight Snow Night",
+    description: "Serata sulla neve con discesa notturna assistita dal sistema SafeSight. DJ set e rinfresco offerto da Salomon.",
+    date: "2024-07-25",
+    time: "19:00",
+    skiResort: "Madonna di Campiglio",
+    meetingPoint: "Rifugio Patascoss",
+    sponsor: mockSponsors[2],
+    image: "https://images.unsplash.com/photo-1517824806704-9040b037703b"
+  },
+  {
+    id: "e4",
+    title: "Test Equipment SafeSight",
+    description: "Prova gratuita dei sensori SafeSight con i nostri tecnici. Scopri come migliorare la tua sicurezza sulle piste.",
+    date: "2024-07-30",
+    time: "09:30",
+    skiResort: "Madonna di Campiglio",
+    meetingPoint: "Ufficio Ski Pass Centrale",
+    sponsor: mockSponsors[3],
+    image: "https://images.unsplash.com/photo-1548345332-61a73e8c5581"
+  },
+  {
+    id: "e5",
+    title: "Competizione Freeride",
+    description: "Gara di freeride con tracciamento SafeSight. Partecipazione gratuita per tutti gli utenti dell'app.",
+    date: "2024-08-05",
+    time: "11:00",
+    skiResort: "Livigno",
+    meetingPoint: "Carosello 3000",
+    sponsor: mockSponsors[0],
+    image: "https://images.unsplash.com/photo-1515598379512-b4323386706c"
+  },
+  {
+    id: "e6",
+    title: "Demo Day - Novità SafeSight",
+    description: "Presentazione delle nuove funzionalità dell'app SafeSight con possibilità di test sul campo.",
+    date: "2024-08-10",
+    time: "10:00",
+    skiResort: "Livigno",
+    meetingPoint: "Centro Servizi Mottolino",
+    sponsor: mockSponsors[1],
+    image: "https://images.unsplash.com/photo-1565992441121-4367c2967103"
+  }
+];
+
 export const getCurrentUser = (): User => mockUsers[0];
 
 export const getAllUsers = (): User[] => mockUsers;
@@ -253,7 +348,14 @@ export const getNotifications = (): Notification[] => mockNotifications;
 
 export const getCurrentSensorData = (): SensorData => mockCurrentSensorData;
 
-// Funzioni di utilità per calcoli sulle statistiche
+export const getAllEvents = (): Event[] => mockEvents;
+
+export const getEventsByResort = (skiResort: string): Event[] => 
+  mockEvents.filter(event => event.skiResort === skiResort);
+
+export const getAllSkiResorts = (): string[] => 
+  [...new Set(mockEvents.map(event => event.skiResort))];
+
 export const calculateTotalStats = (sessions: Session[]) => {
   return {
     totalDistance: sessions.reduce((sum, session) => sum + session.distance, 0),
