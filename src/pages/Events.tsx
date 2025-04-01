@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { getAllEvents, getAllSkiResorts, getEventsByResort } from "@/utils/mockData";
 import { Event } from "@/types";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 // Helper function to format dates
 const formatEventDate = (dateStr: string) => {
@@ -80,49 +81,68 @@ const EventCard: React.FC<{ event: Event }> = ({ event }) => {
   const formattedDate = formatEventDate(event.date);
 
   return (
-    <Card className="overflow-hidden flex flex-col h-full">
+    <Card className="overflow-hidden flex flex-col h-full group hover:shadow-lg transition-all duration-300">
       {event.image && (
-        <div 
-          className="h-40 bg-cover bg-center relative"
-          style={{ backgroundImage: `url(${event.image})` }}
-        >
+        <div className="h-48 relative overflow-hidden">
           <div 
-            className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/70 to-transparent"
+            className="h-full w-full bg-cover bg-center absolute inset-0 transform group-hover:scale-105 transition-transform duration-500 ease-in-out"
+            style={{ backgroundImage: `url(${event.image})` }}
           />
+          <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-black/80 to-transparent" />
+          
+          {/* Event title overlay on image */}
+          <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+            <h3 className="text-xl font-bold line-clamp-2">{event.title}</h3>
+            <p className="text-sm text-gray-200">{event.skiResort}</p>
+          </div>
+          
+          {/* Sponsor badge - top right */}
+          <div className="absolute top-3 right-3 bg-white rounded-full p-1 shadow-md">
+            <Avatar className="h-12 w-12 border-2 border-white">
+              <AvatarImage 
+                src={event.sponsor.logo} 
+                alt={event.sponsor.name}
+                className="p-1"
+                style={{ 
+                  backgroundColor: event.sponsor.color || "white" 
+                }}
+              />
+              <AvatarFallback className="text-xs">
+                {event.sponsor.name.substring(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </div>
         </div>
       )}
       
-      <CardHeader className={event.image ? "-mt-12 relative z-10" : ""}>
-        <div className="flex justify-between items-start">
-          <div>
-            <CardTitle className={event.image ? "text-white" : ""}>
-              {event.title}
-            </CardTitle>
-            <CardDescription className={event.image ? "text-gray-200" : ""}>
-              {event.skiResort}
-            </CardDescription>
+      <CardContent className="flex-grow pt-5">
+        {!event.image && (
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <CardTitle className="text-xl mb-1">{event.title}</CardTitle>
+              <CardDescription>{event.skiResort}</CardDescription>
+            </div>
+            <Avatar className="h-12 w-12 border-2 border-muted">
+              <AvatarImage 
+                src={event.sponsor.logo} 
+                alt={event.sponsor.name}
+                className="p-1"
+                style={{ 
+                  backgroundColor: event.sponsor.color || "white" 
+                }}
+              />
+              <AvatarFallback className="text-xs">
+                {event.sponsor.name.substring(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
           </div>
-          <div 
-            className="h-10 w-16 bg-white rounded flex items-center justify-center p-1"
-            style={{ 
-              backgroundColor: event.sponsor.color || "white" 
-            }}
-          >
-            <img 
-              src={event.sponsor.logo} 
-              alt={`${event.sponsor.name} logo`} 
-              className="max-h-full max-w-full object-contain"
-            />
-          </div>
-        </div>
-      </CardHeader>
-
-      <CardContent className="flex-grow">
-        <p className="text-sm text-muted-foreground mb-4">
+        )}
+        
+        <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
           {event.description}
         </p>
         
-        <div className="space-y-2">
+        <div className="space-y-2 mt-2">
           <div className="flex items-center text-sm">
             <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
             <span>{formattedDate}</span>
@@ -139,10 +159,25 @@ const EventCard: React.FC<{ event: Event }> = ({ event }) => {
       </CardContent>
       
       <CardFooter className="border-t pt-4 flex justify-between items-center">
-        <Badge variant="outline" className="border-2">
+        <Badge 
+          variant="outline" 
+          className="border-[1px]"
+          style={{
+            borderColor: event.sponsor.color || "hsl(var(--border))",
+            color: event.sponsor.color || "inherit"
+          }}
+        >
           Sponsor: {event.sponsor.name}
         </Badge>
-        <Button size="sm">Dettagli</Button>
+        <Button 
+          size="sm" 
+          className="ml-auto"
+          style={{
+            backgroundColor: event.sponsor.color || "hsl(var(--primary))",
+          }}
+        >
+          Dettagli
+        </Button>
       </CardFooter>
     </Card>
   );
