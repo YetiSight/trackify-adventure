@@ -16,7 +16,7 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ location, title, zoom = 15 }) => 
   const mapInstance = useRef<google.maps.Map | null>(null);
 
   useEffect(() => {
-    // Funzione per inizializzare la mappa
+    // Function to initialize the map
     const initMap = () => {
       if (mapRef.current && !mapInstance.current) {
         mapInstance.current = new google.maps.Map(mapRef.current, {
@@ -28,7 +28,7 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ location, title, zoom = 15 }) => 
           zoomControl: true,
         });
 
-        // Aggiungi un marker per la location
+        // Add a marker for the location
         new google.maps.Marker({
           position: location,
           map: mapInstance.current,
@@ -38,21 +38,25 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ location, title, zoom = 15 }) => 
       }
     };
 
-    // Carica l'API di Google Maps se non è già caricata
+    // Load Google Maps API if not already loaded
     if (window.google && window.google.maps) {
       initMap();
     } else {
-      const googleMapsApiKey = 'YOUR_API_KEY_HERE'; // Sostituire con la chiave API di Google Maps
+      const googleMapsApiKey = 'YOUR_API_KEY_HERE'; // Replace with your Google Maps API key
       const script = document.createElement('script');
       script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&callback=initGoogleMap`;
       script.async = true;
       script.defer = true;
       
+      // Add the callback function to window object
       window.initGoogleMap = initMap;
       document.head.appendChild(script);
       
       return () => {
-        delete window.initGoogleMap;
+        // Clean up
+        if (window.initGoogleMap) {
+          delete window.initGoogleMap;
+        }
         document.head.removeChild(script);
       };
     }
@@ -64,7 +68,7 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ location, title, zoom = 15 }) => 
         <div 
           ref={mapRef} 
           className="h-64 w-full rounded-md" 
-          aria-label={`Mappa che mostra la posizione di ${title}`}
+          aria-label={`Map showing the location of ${title}`}
         />
       </CardContent>
     </Card>
