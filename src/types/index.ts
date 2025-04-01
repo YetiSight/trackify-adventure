@@ -94,4 +94,6 @@ export interface Sponsor {
   name: string;
   logo: string;
   color?: string; // Brand color for UI customization
+  description?: string; // Description of the sponsor
+  website?: string; // Sponsor's website URL
 }

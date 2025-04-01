@@ -10,6 +10,7 @@ import Map from "./pages/Map";
 import Profile from "./pages/Profile";
 import Social from "./pages/Social";
 import Events from "./pages/Events";
+import EventDetail from "./pages/EventDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/profile" element={<Profile />} />
           <Route path="/social" element={<Social />} />
           <Route path="/events" element={<Events />} />
+          <Route path="/events/:eventId" element={<EventDetail />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

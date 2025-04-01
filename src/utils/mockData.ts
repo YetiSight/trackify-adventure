@@ -246,25 +246,33 @@ export const mockSponsors: Sponsor[] = [
     id: "s1",
     name: "Red Bull",
     logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Red_Bull_logo.svg/1200px-Red_Bull_logo.svg.png",
-    color: "#1E2759"
+    color: "#1E2759",
+    description: "Red Bull è un'azienda austriaca che produce la famosa bevanda energetica. Nota per sponsorizzare eventi sportivi estremi e atleti di alto livello.",
+    website: "https://www.redbull.com"
   },
   {
     id: "s2",
     name: "The North Face",
     logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/The_North_Face_logo.svg/2560px-The_North_Face_logo.svg.png",
-    color: "#000000"
+    color: "#000000",
+    description: "The North Face è un'azienda americana di abbigliamento e attrezzature per attività outdoor, specializzata in prodotti per alpinismo, sci e sport invernali.",
+    website: "https://www.thenorthface.com"
   },
   {
     id: "s3",
     name: "Salomon",
     logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Salomon_logo.svg/2560px-Salomon_logo.svg.png",
-    color: "#1A1A1A"
+    color: "#1A1A1A",
+    description: "Salomon è un'azienda francese leader nella produzione di attrezzature sportive per la montagna, specializzata in sci, scarponi e abbigliamento tecnico.",
+    website: "https://www.salomon.com"
   },
   {
     id: "s4",
     name: "GoPro",
     logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/GoPro_logo.svg/2560px-GoPro_logo.svg.png",
-    color: "#00A3E1"
+    color: "#00A3E1",
+    description: "GoPro è un'azienda americana che produce action camera di alta qualità, perfette per catturare i tuoi momenti più avventurosi sulle piste da sci.",
+    website: "https://gopro.com"
   }
 ];
 
@@ -272,7 +280,7 @@ export const mockEvents: Event[] = [
   {
     id: "e1",
     title: "Gara di discesa libera SafeSight",
-    description: "Partecipa alla gara di discesa libera sponsorizzata da Red Bull. Premi per i primi 3 classificati. Registra la tua discesa con l'app SafeSight!",
+    description: "Partecipa alla gara di discesa libera sponsorizzata da Red Bull. Premi per i primi 3 classificati. Registra la tua discesa con l'app SafeSight!\n\nL'evento è aperto a sciatori di tutti i livelli, con categorie separate per principianti, intermedi ed esperti. I partecipanti dovranno indossare il dispositivo SafeSight per monitorare la loro performance e garantire la sicurezza durante la discesa.\n\nVieni a metterti alla prova e dimostra le tue abilità sugli sci!",
     date: "2024-07-15",
     time: "10:00",
     skiResort: "Cortina d'Ampezzo",
@@ -283,7 +291,7 @@ export const mockEvents: Event[] = [
   {
     id: "e2",
     title: "Workshop Sicurezza in montagna",
-    description: "Workshop gratuito sulla sicurezza in montagna con esperti del settore. Impara a utilizzare SafeSight per aumentare la tua sicurezza sulle piste.",
+    description: "Workshop gratuito sulla sicurezza in montagna con esperti del settore. Impara a utilizzare SafeSight per aumentare la tua sicurezza sulle piste.\n\nDurante il workshop verranno trattati temi come la prevenzione degli incidenti, le tecniche di autosoccorso e l'utilizzo delle funzionalità avanzate dell'app SafeSight per monitorare l'ambiente circostante e rilevare potenziali pericoli.\n\nIl workshop è adatto sia ai principianti che agli sciatori esperti.",
     date: "2024-07-20",
     time: "14:30",
     skiResort: "Cortina d'Ampezzo",
@@ -294,7 +302,7 @@ export const mockEvents: Event[] = [
   {
     id: "e3",
     title: "SafeSight Snow Night",
-    description: "Serata sulla neve con discesa notturna assistita dal sistema SafeSight. DJ set e rinfresco offerto da Salomon.",
+    description: "Serata sulla neve con discesa notturna assistita dal sistema SafeSight. DJ set e rinfresco offerto da Salomon.\n\nVivi l'emozione di sciare sotto le stelle con la sicurezza garantita dal sistema di rilevamento SafeSight. Le piste saranno illuminate e monitorate dai nostri operatori per garantire la massima sicurezza.\n\nDopo la discesa, unisciti a noi per un rinfresco e musica con DJ set presso il rifugio Patascoss.",
     date: "2024-07-25",
     time: "19:00",
     skiResort: "Madonna di Campiglio",
@@ -305,7 +313,7 @@ export const mockEvents: Event[] = [
   {
     id: "e4",
     title: "Test Equipment SafeSight",
-    description: "Prova gratuita dei sensori SafeSight con i nostri tecnici. Scopri come migliorare la tua sicurezza sulle piste.",
+    description: "Prova gratuita dei sensori SafeSight con i nostri tecnici. Scopri come migliorare la tua sicurezza sulle piste.\n\nI nostri esperti ti guideranno nell'installazione e configurazione del sistema SafeSight sui tuoi dispositivi. Potrai testare tutte le funzionalità avanzate come il rilevamento ostacoli, la rilevazione di movimenti anomali e il sistema di allarme di emergenza.\n\nPrendi parte a una breve sessione di test sulle piste per sperimentare il sistema in azione!",
     date: "2024-07-30",
     time: "09:30",
     skiResort: "Madonna di Campiglio",
@@ -316,7 +324,7 @@ export const mockEvents: Event[] = [
   {
     id: "e5",
     title: "Competizione Freeride",
-    description: "Gara di freeride con tracciamento SafeSight. Partecipazione gratuita per tutti gli utenti dell'app.",
+    description: "Gara di freeride con tracciamento SafeSight. Partecipazione gratuita per tutti gli utenti dell'app.\n\nMetti alla prova le tue abilità in fuoripista in totale sicurezza grazie alla tecnologia SafeSight. I partecipanti saranno valutati per tecnica, stile e creatività. Il sistema SafeSight monitorerà il percorso e le performance, fornendo dati dettagliati che saranno utilizzati per la classifica finale.\n\nIscrizione gratuita per tutti gli utenti dell'app SafeSight!",
     date: "2024-08-05",
     time: "11:00",
     skiResort: "Livigno",
@@ -327,7 +335,7 @@ export const mockEvents: Event[] = [
   {
     id: "e6",
     title: "Demo Day - Novità SafeSight",
-    description: "Presentazione delle nuove funzionalità dell'app SafeSight con possibilità di test sul campo.",
+    description: "Presentazione delle nuove funzionalità dell'app SafeSight con possibilità di test sul campo.\n\nScopri in anteprima le nuove funzionalità dell'app SafeSight e prova sul campo i nuovi sensori di rilevamento avanzato. I nostri ingegneri saranno disponibili per rispondere a tutte le tue domande e raccogliere feedback per migliorare ulteriormente il sistema.\n\nPartecipando riceverai un coupon sconto del 20% per l'acquisto o l'aggiornamento del tuo dispositivo SafeSight.",
     date: "2024-08-10",
     time: "10:00",
     skiResort: "Livigno",
@@ -355,6 +363,9 @@ export const getEventsByResort = (skiResort: string): Event[] =>
 
 export const getAllSkiResorts = (): string[] => 
   [...new Set(mockEvents.map(event => event.skiResort))];
+
+export const getEventById = (eventId: string): Event | undefined => 
+  mockEvents.find(event => event.id === eventId);
 
 export const calculateTotalStats = (sessions: Session[]) => {
   return {

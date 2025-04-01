@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import { format, parseISO } from "date-fns";
 import { it } from "date-fns/locale";
@@ -169,15 +170,17 @@ const EventCard: React.FC<{ event: Event }> = ({ event }) => {
         >
           Sponsor: {event.sponsor.name}
         </Badge>
-        <Button 
-          size="sm" 
-          className="ml-auto"
-          style={{
-            backgroundColor: event.sponsor.color || "hsl(var(--primary))",
-          }}
-        >
-          Dettagli
-        </Button>
+        <Link to={`/events/${event.id}`}>
+          <Button 
+            size="sm" 
+            className="ml-auto"
+            style={{
+              backgroundColor: event.sponsor.color || "hsl(var(--primary))",
+            }}
+          >
+            Dettagli
+          </Button>
+        </Link>
       </CardFooter>
     </Card>
   );
