@@ -1,19 +1,21 @@
 
-import React from "react";
+import React, { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import MapView from "@/components/MapView";
 import ArduinoConnect from "@/components/ArduinoConnect";
 import { getCurrentSensorData } from "@/utils/mockData";
 import { useArduinoStore } from "@/services/ArduinoService";
-import { Compass, Locate, Map as MapIcon, Navigation } from "lucide-react";
+import { Compass, Locate, Map as MapIcon, Navigation, AlertTriangle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const Map: React.FC = () => {
   const { sensorData, connectionState } = useArduinoStore();
   const displayData = sensorData || getCurrentSensorData();
   const isMobile = useIsMobile();
+  const [showAlertsDialog, setShowAlertsDialog] = useState(false);
   
   return (
     <MainLayout>
@@ -35,6 +37,16 @@ const Map: React.FC = () => {
             <Button size={isMobile ? "sm" : "default"} variant="outline" className="flex-1 sm:flex-auto">
               <MapIcon className="h-4 w-4 mr-1" />
               Cambia Vista
+            </Button>
+
+            <Button 
+              size={isMobile ? "sm" : "default"} 
+              variant="outline" 
+              className="flex-1 sm:flex-auto text-amber-600 border-amber-300"
+              onClick={() => setShowAlertsDialog(true)}
+            >
+              <AlertTriangle className="h-4 w-4 mr-1" />
+              Segnalazioni
             </Button>
           </div>
         </div>
@@ -88,6 +100,54 @@ const Map: React.FC = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Dialog for viewing all alerts */}
+        <Dialog open={showAlertsDialog} onOpenChange={setShowAlertsDialog}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>Segnalazioni sulla pista</DialogTitle>
+            </DialogHeader>
+            
+            <div className="max-h-[400px] overflow-y-auto pr-2">
+              {/* In a real app, this would get alerts from a shared state or API */}
+              <div className="space-y-3 py-2">
+                <div className="flex items-start gap-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-md">
+                  <AlertTriangle className="h-5 w-5 text-red-500 mt-0.5" />
+                  <div>
+                    <div className="font-medium">Ostacolo: Ramo caduto sulla pista blu</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      Segnalato da Mario - {new Date(Date.now() - 3600000).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+                  <Snowflake className="h-5 w-5 text-blue-400 mt-0.5" />
+                  <div>
+                    <div className="font-medium">Neve sciolta: alla fine della pista rossa</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      Segnalato da Luca - {new Date(Date.now() - 7200000).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+                  <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
+                  <div>
+                    <div className="font-medium">Ghiaccio: Zona ghiacciata pericolosa</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      Segnalato da Alice - {new Date(Date.now() - 5400000).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-sm text-gray-500 text-center mt-4">
+              Clicca sulla mappa per visualizzare le segnalazioni in tempo reale
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </MainLayout>
   );

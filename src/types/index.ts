@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   name: string;
@@ -100,4 +99,14 @@ export interface Sponsor {
   color?: string; // Brand color for UI customization
   description?: string; // Description of the sponsor
   website?: string; // Sponsor's website URL
+}
+
+export interface PistaAlert {
+  id: string;
+  type: "obstacle" | "melting_snow" | "dune" | "ice" | "fog";
+  description: string;
+  position: GeoPoint;
+  reportedBy: string;
+  timestamp: number; // Unix timestamp
+  active: boolean; // Whether the alert is still active
 }
