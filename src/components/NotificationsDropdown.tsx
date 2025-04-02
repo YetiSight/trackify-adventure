@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -82,14 +82,16 @@ const NotificationItem: React.FC<{ notification: Notification }> = ({ notificati
 
 const NotificationsDropdown: React.FC<NotificationsDropdownProps> = ({ notifications }) => {
   const unreadCount = notifications.filter(n => !n.read).length;
+  const [open, setOpen] = useState(false);
   
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <Button 
           variant="ghost" 
           size="icon"
           className="relative"
+          onClick={() => setOpen(!open)}
         >
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
@@ -99,7 +101,12 @@ const NotificationsDropdown: React.FC<NotificationsDropdownProps> = ({ notificat
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80 max-h-[80vh] overflow-auto">
+      <DropdownMenuContent 
+        align="end" 
+        className="w-80 max-h-[80vh] overflow-auto"
+        sideOffset={4}
+        forceMount
+      >
         <DropdownMenuLabel className="font-bold">
           Notifiche
           {unreadCount > 0 && (
@@ -125,6 +132,7 @@ const NotificationsDropdown: React.FC<NotificationsDropdownProps> = ({ notificat
           <Link 
             to="/notifications" 
             className="text-xs text-blue-600 hover:underline"
+            onClick={() => setOpen(false)}
           >
             Vedi tutte le notifiche
           </Link>

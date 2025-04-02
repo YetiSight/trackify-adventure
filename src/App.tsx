@@ -12,6 +12,7 @@ import Social from "./pages/Social";
 import Events from "./pages/Events";
 import EventDetail from "./pages/EventDetail";
 import NotFound from "./pages/NotFound";
+import Notifications from "./pages/Notifications";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/social" element={<Social />} />
           <Route path="/events" element={<Events />} />
           <Route path="/events/:eventId" element={<EventDetail />} />
+          <Route path="/notifications" element={<Notifications />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

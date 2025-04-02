@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
@@ -65,7 +66,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-900 border-b border-snow-200 dark:border-gray-800 sticky top-0 z-40">
+      <header className="bg-white dark:bg-gray-900 border-b border-snow-200 dark:border-gray-800 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <img src="/logo.svg" alt="SafeSight" className="h-8 w-8" />
