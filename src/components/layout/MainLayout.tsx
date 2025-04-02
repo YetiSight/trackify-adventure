@@ -68,11 +68,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       {/* Header */}
       <header className="bg-white dark:bg-gray-900 border-b border-snow-200 dark:border-gray-800 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <img src="/logo.svg" alt="YetiSight" className="h-8 w-8" />
-            <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-snow-700 to-alpine-600">
-              YetiSight
-            </h1>
+          <div className="flex items-center">
+            <img 
+              src="/lovable-uploads/bb761e52-8397-43ce-9518-ec654d50bd09.png" 
+              alt="YetiSight" 
+              className="h-10" 
+            />
           </div>
           
           <div className="flex items-center space-x-2">
