@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
@@ -6,16 +5,15 @@ import {
   TrendingUp, 
   User, 
   Home, 
-  Bell, 
   Menu, 
   X,
   Users,
   Calendar
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { getNotifications } from "@/utils/mockData";
+import NotificationsDropdown from "@/components/NotificationsDropdown";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -23,11 +21,9 @@ interface MainLayoutProps {
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const location = useLocation();
-  const { toast } = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   const notifications = getNotifications();
-  const unreadCount = notifications.filter(n => !n.read).length;
 
   const navItems = [
     {
@@ -66,22 +62,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
 
-  const showNotification = () => {
-    if (unreadCount > 0) {
-      toast({
-        title: "Notifiche non lette",
-        description: `Hai ${unreadCount} notifiche non lette`,
-        variant: "default",
-      });
-    } else {
-      toast({
-        title: "Nessuna notifica",
-        description: "Non hai nuove notifiche",
-        variant: "default",
-      });
-    }
-  };
-
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
@@ -95,19 +75,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           </div>
           
           <div className="flex items-center space-x-2">
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={showNotification}
-              className="relative"
-            >
-              <Bell className="h-5 w-5" />
-              {unreadCount > 0 && (
-                <span className="absolute top-0 right-0 h-4 w-4 rounded-full bg-alpine-500 text-white text-xs flex items-center justify-center">
-                  {unreadCount}
-                </span>
-              )}
-            </Button>
+            <NotificationsDropdown notifications={notifications} />
             
             <Button 
               variant="ghost" 
