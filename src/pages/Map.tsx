@@ -1,11 +1,10 @@
-
 import React, { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import MapView from "@/components/MapView";
 import ArduinoConnect from "@/components/ArduinoConnect";
 import { getCurrentSensorData } from "@/utils/mockData";
 import { useArduinoStore } from "@/services/ArduinoService";
-import { Compass, Locate, Map as MapIcon, Navigation, AlertTriangle } from "lucide-react";
+import { Compass, Locate, Map as MapIcon, Navigation, AlertTriangle, AlertCircle, Snowflake } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
