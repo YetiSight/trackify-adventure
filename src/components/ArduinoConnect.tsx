@@ -4,7 +4,7 @@ import { useArduinoStore } from "@/services/ArduinoService";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Wifi, WifiOff, Loader2, Network, Shield, ShieldAlert, WifiAlert, AlertTriangle, Clock } from "lucide-react";
+import { Wifi, WifiOff, Loader2, Network, Shield, ShieldAlert, AlertTriangle, Clock } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -73,7 +73,7 @@ const ArduinoConnect: React.FC = () => {
           errorIcon = <Clock className="h-4 w-4 mr-2" />;
           errorText = "Timeout di connessione";
         } else if (errorType === "network") {
-          errorIcon = <WifiAlert className="h-4 w-4 mr-2" />;
+          errorIcon = <WifiOff className="h-4 w-4 mr-2" />;
           errorText = "Errore di rete";
         } else if (errorType === "forbidden") {
           errorIcon = <AlertTriangle className="h-4 w-4 mr-2" />;
