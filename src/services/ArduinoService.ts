@@ -6,6 +6,7 @@ import { create } from "zustand";
 type ArduinoConnectionState = "disconnected" | "connecting" | "connected" | "error";
 type ConnectionMode = "direct" | "remote";
 type SecureMode = "secure" | "insecure";
+type ConnectionError = null | "forbidden" | "timeout" | "network" | "invalid_ip" | "unknown";
 
 interface ArduinoState {
   connection: WebSocket | null;
@@ -14,9 +15,11 @@ interface ArduinoState {
   secureMode: SecureMode;
   sensorData: SensorData | null;
   lastUpdated: number | null;
+  errorType: ConnectionError;
   connectToArduino: (ipAddress: string, port?: string, mode?: ConnectionMode, secure?: SecureMode) => void;
   disconnectFromArduino: () => void;
   setSensorData: (data: SensorData) => void;
+  reconnectWithInsecure: (ipAddress: string, port: string) => void;
 }
 
 export const useArduinoStore = create<ArduinoState>((set, get) => ({
@@ -26,6 +29,7 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
   secureMode: "secure", // Default to secure connections
   sensorData: null,
   lastUpdated: null,
+  errorType: null,
   
   connectToArduino: (ipAddress: string, port = "80", mode = "direct", secure = "secure") => {
     // First disconnect if already connected
@@ -34,7 +38,7 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
       connection.close();
     }
     
-    set({ connectionState: "connecting", connectionMode: mode, secureMode: secure });
+    set({ connectionState: "connecting", connectionMode: mode, secureMode: secure, errorType: null });
     
     try {
       // Format WebSocket URL based on connection mode
@@ -129,8 +133,23 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
       // For direct mode, proceed with actual WebSocket connection
       const ws = new WebSocket(wsUrl);
       
+      // Add connection timeout
+      const connectionTimeout = setTimeout(() => {
+        if (get().connectionState === "connecting") {
+          ws.close();
+          set({ connectionState: "error", errorType: "timeout" });
+          
+          toast({
+            title: "Timeout di connessione",
+            description: "Impossibile stabilire una connessione con Arduino. Controllare che l'Arduino sia acceso e raggiungibile.",
+            variant: "destructive",
+          });
+        }
+      }, 10000); // 10 seconds timeout
+      
       ws.onopen = () => {
-        set({ connection: ws, connectionState: "connected" });
+        clearTimeout(connectionTimeout);
+        set({ connection: ws, connectionState: "connected", errorType: null });
         console.log("WebSocket connection established successfully");
         toast({
           title: "Connessione stabilita",
@@ -155,14 +174,29 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
       };
       
       ws.onerror = (error) => {
+        clearTimeout(connectionTimeout);
         console.error("WebSocket error:", error);
-        set({ connectionState: "error" });
+        
+        let errorType: ConnectionError = "unknown";
+        
+        // Try to determine the nature of the error
+        if (secure === "secure") {
+          errorType = "network";
+        }
+        
+        set({ connectionState: "error", errorType });
         
         // Check if this might be a mixed content issue
         if (secure === "insecure" && window.location.protocol === "https:") {
           toast({
             title: "Errore di sicurezza",
             description: "Il browser ha bloccato una connessione non sicura. Prova ad utilizzare la modalità remota o cambia a WSS (porta 443).",
+            variant: "destructive",
+          });
+        } else if (secure === "secure") {
+          toast({
+            title: "Errore di connessione sicura",
+            description: "La connessione sicura (WSS) non è riuscita. L'Arduino potrebbe non supportare SSL/TLS. Prova la connessione non sicura o la modalità remota.",
             variant: "destructive",
           });
         } else {
@@ -175,6 +209,7 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
       };
       
       ws.onclose = () => {
+        clearTimeout(connectionTimeout);
         console.log("WebSocket connection closed");
         set({ connectionState: "disconnected" });
       };
@@ -182,13 +217,19 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
       set({ connection: ws });
     } catch (error) {
       console.error("Failed to create WebSocket connection:", error);
-      set({ connectionState: "error" });
+      set({ connectionState: "error", errorType: "invalid_ip" });
       toast({
         title: "Errore di connessione",
-        description: "Impossibile connettersi ad Arduino",
+        description: "Impossibile creare la connessione WebSocket. Verifica che l'indirizzo IP sia valido.",
         variant: "destructive",
       });
     }
+  },
+  
+  reconnectWithInsecure: (ipAddress: string, port: string) => {
+    // Helper function to quickly retry with insecure connection
+    const { connectToArduino } = get();
+    connectToArduino(ipAddress, port, "direct", "insecure");
   },
   
   disconnectFromArduino: () => {
@@ -204,7 +245,7 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
       connection.close();
     }
     
-    set({ connection: null, connectionState: "disconnected" });
+    set({ connection: null, connectionState: "disconnected", errorType: null });
     toast({
       title: "Disconnesso",
       description: "Arduino è stato disconnesso",

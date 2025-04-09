@@ -1,17 +1,19 @@
+
 import React, { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import MapView from "@/components/MapView";
 import ArduinoConnect from "@/components/ArduinoConnect";
 import { getCurrentSensorData } from "@/utils/mockData";
 import { useArduinoStore } from "@/services/ArduinoService";
-import { Compass, Locate, Map as MapIcon, Navigation, AlertTriangle, AlertCircle, Snowflake } from "lucide-react";
+import { Compass, Locate, Map as MapIcon, Navigation, AlertTriangle, AlertCircle, Snowflake, Info } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Map: React.FC = () => {
-  const { sensorData, connectionState } = useArduinoStore();
+  const { sensorData, connectionState, connectionMode } = useArduinoStore();
   const displayData = sensorData || getCurrentSensorData();
   const isMobile = useIsMobile();
   const [showAlertsDialog, setShowAlertsDialog] = useState(false);
@@ -49,6 +51,24 @@ const Map: React.FC = () => {
             </Button>
           </div>
         </div>
+
+        {connectionState === "error" && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              Impossibile connettersi all'Arduino. Verifica la connessione e prova ad utilizzare porte diverse o la modalità remota.
+            </AlertDescription>
+          </Alert>
+        )}
+        
+        {connectionState === "connected" && connectionMode === "remote" && (
+          <Alert className="mb-4 bg-amber-50 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400 border-amber-300">
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              Connesso in modalità remota. Utilizzando dati simulati per dimostrare la funzionalità.
+            </AlertDescription>
+          </Alert>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 lg:row-span-2">
