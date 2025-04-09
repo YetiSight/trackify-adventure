@@ -62,14 +62,12 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
           // Start sending mock data every 2 seconds
           const mockDataInterval = setInterval(() => {
             const mockData: SensorData = {
-              gps: {
-                position: {
-                  lat: 46.5142 + (Math.random() - 0.5) * 0.01,
-                  lng: 11.3384 + (Math.random() - 0.5) * 0.01
-                },
-                heading: Math.random() * 360,
-                speed: 5 + Math.random() * 15,
-                altitude: 1800 + Math.random() * 200
+              ultrasonic: {
+                distance: 850,
+                velocity: 5
+              },
+              pir: {
+                detected: Math.random() > 0.7
               },
               imu: {
                 acceleration: {
@@ -77,17 +75,26 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
                   y: Math.random() * 2 - 1,
                   z: Math.random() * 2 - 1
                 },
+                gyro: {
+                  x: Math.random() * 0.1,
+                  y: Math.random() * 0.1,
+                  z: Math.random() * 0.1
+                },
                 orientation: {
-                  pitch: Math.random() * 30 - 15,
                   roll: Math.random() * 20 - 10,
+                  pitch: Math.random() * 30 - 15,
                   yaw: Math.random() * 360
                 },
                 altitude: 1800 + Math.random() * 200
               },
-              environmentals: {
-                temperature: -5 + Math.random() * 10,
-                humidity: 70 + Math.random() * 20,
-                pressure: 800 + Math.random() * 50
+              gps: {
+                position: {
+                  lat: 46.5142 + (Math.random() - 0.5) * 0.01,
+                  lng: 11.3384 + (Math.random() - 0.5) * 0.01
+                },
+                speed: 5 + Math.random() * 15,
+                heading: Math.random() * 360,
+                accuracy: 3 + Math.random() * 5
               }
             };
             
