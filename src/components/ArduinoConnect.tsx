@@ -9,9 +9,10 @@ import { Wifi, WifiOff, Loader2 } from "lucide-react";
 const ArduinoConnect: React.FC = () => {
   const { connectionState, connectToArduino, disconnectFromArduino } = useArduinoStore();
   const [ipAddress, setIpAddress] = useState("192.168.1.100");
+  const [port, setPort] = useState("80");
   
   const handleConnect = () => {
-    connectToArduino(ipAddress);
+    connectToArduino(ipAddress, port);
   };
   
   const handleDisconnect = () => {
@@ -56,7 +57,7 @@ const ArduinoConnect: React.FC = () => {
       <CardHeader>
         <CardTitle>Connessione Arduino</CardTitle>
         <CardDescription>
-          Connettiti ad Arduino per ricevere i dati in tempo reale
+          Connettiti ad Arduino UNO R4 WiFi per ricevere i dati in tempo reale
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -66,30 +67,47 @@ const ArduinoConnect: React.FC = () => {
             {renderConnectionStatus()}
           </div>
           
-          <div className="flex space-x-2">
-            <Input
-              type="text"
-              value={ipAddress}
-              onChange={(e) => setIpAddress(e.target.value)}
-              placeholder="192.168.1.100"
-              disabled={connectionState === "connected" || connectionState === "connecting"}
-            />
+          <div className="space-y-2">
+            <div className="grid grid-cols-3 gap-2">
+              <div className="col-span-2">
+                <Input
+                  type="text"
+                  value={ipAddress}
+                  onChange={(e) => setIpAddress(e.target.value)}
+                  placeholder="192.168.1.100"
+                  disabled={connectionState === "connected" || connectionState === "connecting"}
+                  aria-label="Indirizzo IP Arduino"
+                />
+              </div>
+              <div>
+                <Input
+                  type="text"
+                  value={port}
+                  onChange={(e) => setPort(e.target.value)}
+                  placeholder="80"
+                  disabled={connectionState === "connected" || connectionState === "connecting"}
+                  aria-label="Porta WebSocket"
+                />
+              </div>
+            </div>
             
-            {connectionState === "connected" || connectionState === "connecting" ? (
-              <Button 
-                variant="destructive" 
-                onClick={handleDisconnect}
-              >
-                Disconnetti
-              </Button>
-            ) : (
-              <Button 
-                onClick={handleConnect}
-                variant="default"
-              >
-                Connetti
-              </Button>
-            )}
+            <div className="flex justify-end">
+              {connectionState === "connected" || connectionState === "connecting" ? (
+                <Button 
+                  variant="destructive" 
+                  onClick={handleDisconnect}
+                >
+                  Disconnetti
+                </Button>
+              ) : (
+                <Button 
+                  onClick={handleConnect}
+                  variant="default"
+                >
+                  Connetti
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </CardContent>

@@ -10,7 +10,7 @@ interface ArduinoState {
   connectionState: ArduinoConnectionState;
   sensorData: SensorData | null;
   lastUpdated: number | null;
-  connectToArduino: (ipAddress: string) => void;
+  connectToArduino: (ipAddress: string, port?: string) => void;
   disconnectFromArduino: () => void;
   setSensorData: (data: SensorData) => void;
 }
@@ -21,7 +21,7 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
   sensorData: null,
   lastUpdated: null,
   
-  connectToArduino: (ipAddress: string) => {
+  connectToArduino: (ipAddress: string, port = "80") => {
     // First disconnect if already connected
     const { connection } = get();
     if (connection) {
@@ -31,11 +31,16 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
     set({ connectionState: "connecting" });
     
     try {
-      // Connect to Arduino WebSocket server
-      const ws = new WebSocket(`ws://${ipAddress}/ws`);
+      // Format WebSocket URL based on Arduino UNO R4 WiFi specifications
+      // Default endpoint for Arduino UNO R4 WiFi might be just the root path
+      const wsUrl = `ws://${ipAddress}:${port}/`;
+      console.log("Connecting to WebSocket URL:", wsUrl);
+      
+      const ws = new WebSocket(wsUrl);
       
       ws.onopen = () => {
         set({ connection: ws, connectionState: "connected" });
+        console.log("WebSocket connection established successfully");
         toast({
           title: "Connessione stabilita",
           description: "Arduino è ora connesso",
@@ -45,6 +50,7 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
       
       ws.onmessage = (event) => {
         try {
+          console.log("Received data from Arduino:", event.data);
           const data = JSON.parse(event.data) as SensorData;
           set({ sensorData: data, lastUpdated: Date.now() });
         } catch (error) {
@@ -68,6 +74,7 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
       };
       
       ws.onclose = () => {
+        console.log("WebSocket connection closed");
         set({ connectionState: "disconnected" });
       };
       
