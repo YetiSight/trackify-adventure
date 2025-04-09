@@ -5,14 +5,16 @@ import { create } from "zustand";
 
 type ArduinoConnectionState = "disconnected" | "connecting" | "connected" | "error";
 type ConnectionMode = "direct" | "remote";
+type SecureMode = "secure" | "insecure";
 
 interface ArduinoState {
   connection: WebSocket | null;
   connectionState: ArduinoConnectionState;
   connectionMode: ConnectionMode;
+  secureMode: SecureMode;
   sensorData: SensorData | null;
   lastUpdated: number | null;
-  connectToArduino: (ipAddress: string, port?: string, mode?: ConnectionMode) => void;
+  connectToArduino: (ipAddress: string, port?: string, mode?: ConnectionMode, secure?: SecureMode) => void;
   disconnectFromArduino: () => void;
   setSensorData: (data: SensorData) => void;
 }
@@ -21,26 +23,40 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
   connection: null,
   connectionState: "disconnected",
   connectionMode: "direct",
+  secureMode: "secure", // Default to secure connections
   sensorData: null,
   lastUpdated: null,
   
-  connectToArduino: (ipAddress: string, port = "80", mode = "direct") => {
+  connectToArduino: (ipAddress: string, port = "80", mode = "direct", secure = "secure") => {
     // First disconnect if already connected
     const { connection } = get();
     if (connection) {
       connection.close();
     }
     
-    set({ connectionState: "connecting", connectionMode: mode });
+    set({ connectionState: "connecting", connectionMode: mode, secureMode: secure });
     
     try {
       // Format WebSocket URL based on connection mode
       let wsUrl;
       
       if (mode === "direct") {
+        // Protocol prefix based on security setting
+        const protocol = secure === "secure" ? "wss://" : "ws://";
+        
         // Direct connection to Arduino on the same network
-        wsUrl = `ws://${ipAddress}:${port}/`;
-        console.log("Connecting directly to Arduino WebSocket URL:", wsUrl);
+        wsUrl = `${protocol}${ipAddress}:${port}/`;
+        console.log(`Connecting directly to Arduino WebSocket URL: ${wsUrl}`);
+        
+        // Check for HTTPS mixed content warning
+        if (secure === "insecure" && window.location.protocol === "https:") {
+          console.warn("Attempting insecure WebSocket connection from HTTPS page. This may be blocked by the browser.");
+          toast({
+            title: "Avviso di sicurezza",
+            description: "Il browser potrebbe bloccare connessioni non sicure. Se la connessione fallisce, prova ad utilizzare la modalità remota o una connessione sicura WSS.",
+            variant: "destructive",
+          });
+        }
       } else {
         // Remote connection through a broker service
         // In a real implementation, this would be a WebSocket broker URL
@@ -141,11 +157,21 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
       ws.onerror = (error) => {
         console.error("WebSocket error:", error);
         set({ connectionState: "error" });
-        toast({
-          title: "Errore di connessione",
-          description: "Impossibile connettersi ad Arduino",
-          variant: "destructive",
-        });
+        
+        // Check if this might be a mixed content issue
+        if (secure === "insecure" && window.location.protocol === "https:") {
+          toast({
+            title: "Errore di sicurezza",
+            description: "Il browser ha bloccato una connessione non sicura. Prova ad utilizzare la modalità remota o cambia a WSS (porta 443).",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Errore di connessione",
+            description: "Impossibile connettersi ad Arduino. Verifica IP, porta e che l'Arduino sia online.",
+            variant: "destructive",
+          });
+        }
       };
       
       ws.onclose = () => {
