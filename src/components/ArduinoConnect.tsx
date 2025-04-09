@@ -4,17 +4,34 @@ import { useArduinoStore } from "@/services/ArduinoService";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Wifi, WifiOff, Loader2, Network, Shield, ShieldAlert, AlertTriangle, Clock } from "lucide-react";
+import { Wifi, WifiOff, Loader2, Network, Shield, ShieldAlert, AlertTriangle, Clock, Info } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const DEFAULT_PORTS = {
   secure: "443",
   insecure: "80"
 };
+
+// Elenco di porte comunemente usate per WebSocket
+const COMMON_PORTS = [
+  { value: "80", label: "80 (WS standard)" },
+  { value: "443", label: "443 (WSS sicuro)" },
+  { value: "81", label: "81 (Alternativa)" },
+  { value: "8080", label: "8080 (Alternativa)" },
+  { value: "8081", label: "8081 (Alternativa)" },
+  { value: "3000", label: "3000 (Sviluppo)" }
+];
 
 const ArduinoConnect: React.FC = () => {
   const { connectionState, connectionMode, secureMode, errorType, connectToArduino, disconnectFromArduino, reconnectWithInsecure } = useArduinoStore();
@@ -22,14 +39,26 @@ const ArduinoConnect: React.FC = () => {
   const [port, setPort] = useState(DEFAULT_PORTS.secure);
   const [mode, setMode] = useState<"direct" | "remote">("direct");
   const [secureConnection, setSecureConnection] = useState<boolean>(true);
+  const [customPort, setCustomPort] = useState<boolean>(false);
   const { toast } = useToast();
   
   // Update port when secure mode changes
   useEffect(() => {
-    setPort(secureConnection ? DEFAULT_PORTS.secure : DEFAULT_PORTS.insecure);
-  }, [secureConnection]);
+    if (!customPort) {
+      setPort(secureConnection ? DEFAULT_PORTS.secure : DEFAULT_PORTS.insecure);
+    }
+  }, [secureConnection, customPort]);
   
   const handleConnect = () => {
+    if (!ipAddress.trim()) {
+      toast({
+        title: "Errore",
+        description: "Inserisci un indirizzo IP valido",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     connectToArduino(ipAddress, port, mode, secureConnection ? "secure" : "insecure");
   };
   
@@ -45,6 +74,12 @@ const ArduinoConnect: React.FC = () => {
     reconnectWithInsecure(ipAddress, DEFAULT_PORTS.insecure);
     setSecureConnection(false);
     setPort(DEFAULT_PORTS.insecure);
+    setCustomPort(false);
+  };
+  
+  const handleSelectPort = (value: string) => {
+    setPort(value);
+    setCustomPort(true);
   };
   
   const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
@@ -136,26 +171,55 @@ const ArduinoConnect: React.FC = () => {
             
             {mode === "direct" && (
               <>
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="col-span-2">
+                <div className="grid grid-cols-1 gap-2 mb-2">
+                  <div>
+                    <Label htmlFor="ip-address" className="text-xs mb-1 block">Indirizzo IP Arduino</Label>
                     <Input
+                      id="ip-address"
                       type="text"
                       value={ipAddress}
                       onChange={(e) => setIpAddress(e.target.value)}
                       placeholder="192.168.1.100"
                       disabled={connectionState === "connected" || connectionState === "connecting"}
-                      aria-label="Indirizzo IP Arduino"
                     />
                   </div>
+                  
                   <div>
-                    <Input
-                      type="text"
-                      value={port}
-                      onChange={(e) => setPort(e.target.value)}
-                      placeholder={secureConnection ? "443" : "80"}
-                      disabled={connectionState === "connected" || connectionState === "connecting"}
-                      aria-label="Porta WebSocket"
-                    />
+                    <Label htmlFor="port" className="text-xs mb-1 block">Porta WebSocket</Label>
+                    <div className="flex gap-2">
+                      <div className="flex-1">
+                        <Select
+                          value={port}
+                          onValueChange={handleSelectPort}
+                          disabled={connectionState === "connected" || connectionState === "connecting"}
+                        >
+                          <SelectTrigger id="port">
+                            <SelectValue placeholder="Seleziona porta" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {COMMON_PORTS.map((option) => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="w-20">
+                        <Input
+                          type="text"
+                          value={port}
+                          onChange={(e) => {
+                            setPort(e.target.value);
+                            setCustomPort(true);
+                          }}
+                          placeholder="Porta"
+                          disabled={connectionState === "connected" || connectionState === "connecting"}
+                          aria-label="Porta personalizzata"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
                 
@@ -214,13 +278,18 @@ const ArduinoConnect: React.FC = () => {
                   </div>
                 )}
 
-                <div className="text-xs text-muted-foreground mt-1">
-                  <p>Porte consigliate:</p>
-                  <ul className="list-disc pl-4 mt-1 space-y-0.5">
-                    <li>Porta 80: WebSocket standard (WS)</li>
-                    <li>Porta 443: WebSocket sicuro (WSS)</li>
-                    <li>Porta 81, 8080, 8081: Alternative comuni</li>
-                  </ul>
+                <div className="text-xs bg-blue-50 dark:bg-blue-900/10 p-2 rounded mt-2">
+                  <div className="flex items-start">
+                    <Info className="h-4 w-4 text-blue-500 mt-0.5 mr-1.5" />
+                    <div>
+                      <p className="font-medium text-blue-800 dark:text-blue-300">Informazioni sulla connessione:</p>
+                      <ul className="list-disc pl-4 mt-1 space-y-0.5 text-blue-700 dark:text-blue-400">
+                        <li>La maggior parte degli Arduino usa la porta 80 (WS) o 81</li>
+                        <li>La connessione sicura (WSS) richiede configurazione SSL sull'Arduino</li>
+                        <li>Se non riesci a connetterti, prova la modalità remota</li>
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               </>
             )}

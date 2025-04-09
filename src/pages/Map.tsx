@@ -17,6 +17,7 @@ const Map: React.FC = () => {
   const displayData = sensorData || getCurrentSensorData();
   const isMobile = useIsMobile();
   const [showAlertsDialog, setShowAlertsDialog] = useState(false);
+  const [showHelpDialog, setShowHelpDialog] = useState(false);
   
   return (
     <MainLayout>
@@ -48,6 +49,16 @@ const Map: React.FC = () => {
             >
               <AlertTriangle className="h-4 w-4 mr-1" />
               Segnalazioni
+            </Button>
+            
+            <Button 
+              size={isMobile ? "sm" : "default"} 
+              variant="outline" 
+              className="flex-1 sm:flex-auto text-blue-600 border-blue-300"
+              onClick={() => setShowHelpDialog(true)}
+            >
+              <Info className="h-4 w-4 mr-1" />
+              Aiuto
             </Button>
           </div>
         </div>
@@ -164,6 +175,54 @@ const Map: React.FC = () => {
             
             <div className="text-sm text-gray-500 text-center mt-4">
               Clicca sulla mappa per visualizzare le segnalazioni in tempo reale
+            </div>
+          </DialogContent>
+        </Dialog>
+        
+        {/* Help dialog */}
+        <Dialog open={showHelpDialog} onOpenChange={setShowHelpDialog}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>Aiuto per la connessione ad Arduino</DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-4 py-2">
+              <Alert className="bg-blue-50 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300 border-blue-200">
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  <p className="font-medium">Suggerimenti per la connessione</p>
+                </AlertDescription>
+              </Alert>
+              
+              <div className="space-y-2 text-sm">
+                <h3 className="font-medium">1. Verifica l'indirizzo IP dell'Arduino</h3>
+                <p>Assicurati che l'Arduino sia connesso alla stessa rete WiFi del tuo dispositivo. 
+                   Puoi trovare l'indirizzo IP dell'Arduino nel monitor seriale dell'IDE Arduino.</p>
+                
+                <h3 className="font-medium mt-3">2. Prova diverse porte</h3>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>Porta 80: La porta standard per WebSocket (WS)</li>
+                  <li>Porta 81: Porta alternativa spesso usata per WebSocket</li>
+                  <li>Porta 443: Per connessioni sicure (WSS) - richiede configurazione SSL sull'Arduino</li>
+                  <li>Porte 8080, 8081, 3000: Porte alternative comuni</li>
+                </ul>
+                
+                <h3 className="font-medium mt-3">3. Tipo di connessione</h3>
+                <p>Se sei su una pagina HTTPS, il browser potrebbe bloccare connessioni WebSocket non sicure (WS).
+                   Prova queste opzioni:</p>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>Usa una connessione WebSocket sicura (WSS) sulla porta 443 (richiede SSL sull'Arduino)</li>
+                  <li>Passa alla modalità "Remota" che usa una connessione sicura simulata</li>
+                </ul>
+                
+                <h3 className="font-medium mt-3">4. Codice Arduino</h3>
+                <p>Assicurati che l'Arduino esegua uno sketch che configura correttamente un server WebSocket.
+                   Esempio di librerie compatibili:</p>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>WebSockets di Markus Sattler</li>
+                  <li>ArduinoWebsockets di Gil Maimon</li>
+                </ul>
+              </div>
             </div>
           </DialogContent>
         </Dialog>

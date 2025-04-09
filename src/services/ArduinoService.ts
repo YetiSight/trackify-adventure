@@ -38,6 +38,17 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
       connection.close();
     }
     
+    // Validate inputs
+    if (!ipAddress.trim()) {
+      toast({
+        title: "Errore di connessione",
+        description: "Inserisci un indirizzo IP valido",
+        variant: "destructive",
+      });
+      set({ connectionState: "error", errorType: "invalid_ip" });
+      return;
+    }
+    
     set({ connectionState: "connecting", connectionMode: mode, secureMode: secure, errorType: null });
     
     try {
@@ -184,7 +195,7 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
           errorType = "network";
         }
         
-        set({ connectionState: "error", errorType });
+        set({ connectionState: "error", errorType, connection: null });
         
         // Check if this might be a mixed content issue
         if (secure === "insecure" && window.location.protocol === "https:") {
@@ -211,7 +222,9 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
       ws.onclose = () => {
         clearTimeout(connectionTimeout);
         console.log("WebSocket connection closed");
-        set({ connectionState: "disconnected" });
+        if (get().connectionState !== "error") {
+          set({ connectionState: "disconnected", connection: null });
+        }
       };
       
       set({ connection: ws });
