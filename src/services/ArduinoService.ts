@@ -1,10 +1,10 @@
-
 import { toast } from "@/hooks/use-toast";
 import { SensorData } from "@/types";
 import { create } from "zustand";
+import { fetchThingSpeakData, mapThingSpeakToSensorData, predefinedChannels, setupThingSpeakPolling } from "./ThingSpeakService";
 
 type ArduinoConnectionState = "disconnected" | "connecting" | "connected" | "error";
-type ConnectionMode = "direct" | "remote";
+type ConnectionMode = "direct" | "remote" | "thingspeak";
 type SecureMode = "secure" | "insecure";
 type ConnectionError = null | "forbidden" | "timeout" | "network" | "invalid_ip" | "unknown";
 
@@ -16,7 +16,11 @@ interface ArduinoState {
   sensorData: SensorData | null;
   lastUpdated: number | null;
   errorType: ConnectionError;
+  thingspeakCleanup: (() => void) | null;
+  thingspeakChannelId: number | null;
+  thingspeakApiKey: string | null;
   connectToArduino: (ipAddress: string, port?: string, mode?: ConnectionMode, secure?: SecureMode) => void;
+  connectToThingSpeak: (channelId: number, apiKey: string) => void;
   disconnectFromArduino: () => void;
   setSensorData: (data: SensorData) => void;
   reconnectWithInsecure: (ipAddress: string, port: string) => void;
@@ -30,15 +34,43 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
   sensorData: null,
   lastUpdated: null,
   errorType: null,
+  thingspeakCleanup: null,
+  thingspeakChannelId: null,
+  thingspeakApiKey: null,
   
   connectToArduino: (ipAddress: string, port = "80", mode = "direct", secure = "secure") => {
     // First disconnect if already connected
-    const { connection } = get();
+    const { connection, thingspeakCleanup } = get();
     if (connection) {
       connection.close();
     }
     
-    // Validate inputs
+    // Clean up any existing ThingSpeak polling
+    if (thingspeakCleanup) {
+      thingspeakCleanup();
+      set({ thingspeakCleanup: null });
+    }
+    
+    // If mode is ThingSpeak, use ThingSpeak connection function instead
+    if (mode === "thingspeak") {
+      // Try to find a predefined channel with this ID
+      const channelId = parseInt(ipAddress);
+      if (isNaN(channelId)) {
+        toast({
+          title: "ID canale non valido",
+          description: "L'ID del canale ThingSpeak deve essere un numero",
+          variant: "destructive",
+        });
+        set({ connectionState: "error", errorType: "invalid_ip" });
+        return;
+      }
+      
+      const apiKey = port; // Using port param as apiKey for simplicity
+      get().connectToThingSpeak(channelId, apiKey);
+      return;
+    }
+    
+    // Validate inputs for direct/remote mode
     if (!ipAddress.trim()) {
       toast({
         title: "Errore di connessione",
@@ -239,6 +271,80 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
     }
   },
   
+  connectToThingSpeak: (channelId: number, apiKey: string) => {
+    // First disconnect if already connected
+    const { connection, thingspeakCleanup } = get();
+    if (connection) {
+      connection.close();
+      set({ connection: null });
+    }
+    
+    // Clean up any existing ThingSpeak polling
+    if (thingspeakCleanup) {
+      thingspeakCleanup();
+    }
+    
+    set({ 
+      connectionState: "connecting", 
+      connectionMode: "thingspeak", 
+      errorType: null,
+      thingspeakChannelId: channelId,
+      thingspeakApiKey: apiKey
+    });
+    
+    // Attempt to fetch data once immediately to verify connection
+    fetchThingSpeakData(channelId, apiKey)
+      .then(data => {
+        // Find the field mapping for this channel
+        const channel = predefinedChannels.find(c => c.id === channelId);
+        if (!channel) {
+          throw new Error("Channel configuration not found");
+        }
+        
+        // Map the data to our format
+        const sensorData = mapThingSpeakToSensorData(data, channel.fields);
+        
+        // Update state with the fetched data
+        set({ 
+          sensorData, 
+          lastUpdated: Date.now(), 
+          connectionState: "connected" 
+        });
+        
+        toast({
+          title: "Connessione ThingSpeak stabilita",
+          description: `Connesso al canale: ${channel.name}`,
+        });
+        
+        // Set up continuous polling
+        const cleanup = setupThingSpeakPolling(
+          channelId,
+          apiKey,
+          channel.fields,
+          (newData) => {
+            set({ sensorData: newData, lastUpdated: Date.now() });
+          }
+        );
+        
+        set({ thingspeakCleanup: cleanup });
+      })
+      .catch(error => {
+        console.error("Failed to connect to ThingSpeak:", error);
+        set({ 
+          connectionState: "error", 
+          errorType: "network",
+          thingspeakChannelId: null,
+          thingspeakApiKey: null
+        });
+        
+        toast({
+          title: "Errore connessione ThingSpeak",
+          description: "Impossibile connettersi al canale ThingSpeak. Verifica ID e API key.",
+          variant: "destructive",
+        });
+      });
+  },
+  
   reconnectWithInsecure: (ipAddress: string, port: string) => {
     // Helper function to quickly retry with insecure connection
     const { connectToArduino } = get();
@@ -246,7 +352,7 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
   },
   
   disconnectFromArduino: () => {
-    const { connection, connectionMode } = get();
+    const { connection, connectionMode, thingspeakCleanup } = get();
     
     // Clear mock data interval if in remote mode
     if (connectionMode === "remote" && (window as any).__mockDataInterval) {
@@ -254,11 +360,24 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
       (window as any).__mockDataInterval = null;
     }
     
+    // Clean up ThingSpeak polling if active
+    if (thingspeakCleanup) {
+      thingspeakCleanup();
+    }
+    
     if (connection) {
       connection.close();
     }
     
-    set({ connection: null, connectionState: "disconnected", errorType: null });
+    set({ 
+      connection: null, 
+      connectionState: "disconnected", 
+      errorType: null,
+      thingspeakCleanup: null,
+      thingspeakChannelId: null,
+      thingspeakApiKey: null
+    });
+    
     toast({
       title: "Disconnesso",
       description: "Arduino è stato disconnesso",

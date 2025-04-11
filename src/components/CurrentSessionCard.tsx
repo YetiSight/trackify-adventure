@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { SensorData } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Gauge, Thermometer, Navigation, LocateFixed } from "lucide-react";
+import { Gauge, Thermometer, Navigation, LocateFixed, Cloud } from "lucide-react";
 import { useArduinoStore } from "@/services/ArduinoService";
 import { getCurrentSensorData } from "@/utils/mockData";
 
@@ -12,7 +12,7 @@ interface CurrentSessionCardProps {
 }
 
 const CurrentSessionCard: React.FC<CurrentSessionCardProps> = ({ sensorData: propsSensorData }) => {
-  const { sensorData: arduinoData, connectionState } = useArduinoStore();
+  const { sensorData: arduinoData, connectionState, connectionMode } = useArduinoStore();
   const [displayData, setDisplayData] = useState<SensorData>(propsSensorData || getCurrentSensorData());
   
   useEffect(() => {
@@ -23,15 +23,29 @@ const CurrentSessionCard: React.FC<CurrentSessionCardProps> = ({ sensorData: pro
     }
   }, [arduinoData, propsSensorData, connectionState]);
 
+  // Generate the data source description
+  const getDataSourceDescription = () => {
+    if (connectionState === "connected") {
+      if (connectionMode === "direct") {
+        return "Dati in tempo reale da Arduino";
+      } else if (connectionMode === "remote") {
+        return "Dati simulati dai sensori";
+      } else if (connectionMode === "thingspeak") {
+        return "Dati da ThingSpeak";
+      }
+    }
+    return "Dati simulati dai sensori";
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Sessione Attuale</CardTitle>
-        <CardDescription>
-          {connectionState === "connected" 
-            ? "Dati in tempo reale da Arduino" 
-            : "Dati simulati dai sensori"
-          }
+        <CardDescription className="flex items-center gap-1">
+          {connectionMode === "thingspeak" && connectionState === "connected" && (
+            <Cloud className="h-4 w-4 text-sky-500" />
+          )}
+          {getDataSourceDescription()}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
