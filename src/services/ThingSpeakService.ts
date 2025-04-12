@@ -15,6 +15,7 @@ interface ThingSpeakChannel {
 // Function to fetch data from a ThingSpeak channel
 export async function fetchThingSpeakData(channelId: number, apiKey: string): Promise<any> {
   try {
+    console.log(`Fetching ThingSpeak data for channel ${channelId} with API key ${apiKey}`);
     const response = await fetch(
       `https://api.thingspeak.com/channels/${channelId}/feeds/last.json?api_key=${apiKey}`
     );
@@ -23,7 +24,9 @@ export async function fetchThingSpeakData(channelId: number, apiKey: string): Pr
       throw new Error(`Failed to fetch data: ${response.status}`);
     }
     
-    return await response.json();
+    const data = await response.json();
+    console.log("ThingSpeak data received:", data);
+    return data;
   } catch (error) {
     console.error("Error fetching ThingSpeak data:", error);
     toast({
@@ -100,9 +103,9 @@ function setNestedProperty(obj: any, path: string, value: any): void {
 // Predefined ThingSpeak channel configurations
 export const predefinedChannels: ThingSpeakChannel[] = [
   {
-    id: 2271252, // Example channel ID - replace with a real one
+    id: 2271252,
     name: "Arduino Sensori Alpini",
-    apiKey: "JJKCM5Q2H8G5MPAT", // Example read API key - replace with a real one
+    apiKey: "JJKCM5Q2H8G5MPAT",
     fields: {
       "1": "ultrasonic.distance",
       "2": "imu.orientation.pitch",
@@ -113,8 +116,41 @@ export const predefinedChannels: ThingSpeakChannel[] = [
       "7": "gps.speed",
       "8": "gps.heading"
     }
+  },
+  // Adding the channel from the network logs that is functioning
+  {
+    id: 2912718,
+    name: "Arduino Sensori GPS",
+    apiKey: "YIF25EQOHVOEKWZL",
+    fields: {
+      "1": "gps.position.lat",  
+      "2": "gps.position.lng",
+      "3": "gps.speed",
+      "4": "gps.heading",
+      "5": "pir.detected",
+      "6": "ultrasonic.distance"
+    }
   }
 ];
+
+// Function to find channel configuration by ID
+export function findChannelConfig(channelId: number): ThingSpeakChannel | undefined {
+  return predefinedChannels.find(c => c.id === channelId);
+}
+
+// Function to get default fields mapping for custom channels
+export function getDefaultFieldMapping(): ThingSpeakChannel['fields'] {
+  return {
+    "1": "gps.position.lat",
+    "2": "gps.position.lng",
+    "3": "gps.speed",
+    "4": "imu.altitude",
+    "5": "imu.orientation.roll",
+    "6": "imu.orientation.pitch",
+    "7": "ultrasonic.distance",
+    "8": "pir.detected"
+  };
+}
 
 // Function to start polling ThingSpeak for data
 export function setupThingSpeakPolling(

@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +13,8 @@ import {
   ChevronDown,
   Lock,
   Unlock,
-  Gauge
+  Gauge,
+  RefreshCw
 } from "lucide-react";
 import { useArduinoStore } from "@/services/ArduinoService";
 import { 
@@ -53,12 +53,22 @@ const ArduinoConnect: React.FC = () => {
     connectionState, 
     connectToArduino, 
     disconnectFromArduino,
-
     connectionMode,
     secureMode,
     errorType,
     thingspeakChannelId: connectedChannelId
   } = useArduinoStore();
+  
+  useEffect(() => {
+    if (thingspeakChannel !== "custom" && thingspeakChannel !== "") {
+      const channelId = parseInt(thingspeakChannel);
+      const channel = predefinedChannels.find(c => c.id === channelId);
+      if (channel) {
+        setThingspeakChannelId(channel.id.toString());
+        setThingspeakApiKey(channel.apiKey);
+      }
+    }
+  }, [thingspeakChannel]);
   
   const handleConnection = () => {
     if (connectionState === "connected" || connectionState === "connecting") {
@@ -67,17 +77,13 @@ const ArduinoConnect: React.FC = () => {
     }
     
     if (activeTab === "direct") {
-      // For direct connections, use the IP and port
       connectToArduino(ipAddress, port, "direct", secureMode);
     } else if (activeTab === "remote") {
-      // For remote mode, use a placeholder
       connectToArduino("remote", "80", "remote");
     } else if (activeTab === "thingspeak") {
-      // For ThingSpeak, determine if using predefined or custom
       if (thingspeakChannel === "custom") {
         connectToArduino(thingspeakChannelId, thingspeakApiKey, "thingspeak");
       } else {
-        // Using a predefined channel
         const channelId = parseInt(thingspeakChannel);
         const channel = predefinedChannels.find(c => c.id === channelId);
         if (channel) {
@@ -87,7 +93,6 @@ const ArduinoConnect: React.FC = () => {
     }
   };
   
-  // Determine the connection status indicator
   const getStatusIndicator = () => {
     switch (connectionState) {
       case "connected":
@@ -125,7 +130,6 @@ const ArduinoConnect: React.FC = () => {
     }
   };
   
-  // Get button text based on connection state
   const getButtonText = () => {
     if (connectionState === "connected") {
       return "Disconnetti";
@@ -136,7 +140,6 @@ const ArduinoConnect: React.FC = () => {
     }
   };
   
-  // Helper to determine if form is valid
   const isFormValid = () => {
     if (activeTab === "direct") {
       return ipAddress.trim() !== "";
@@ -144,16 +147,27 @@ const ArduinoConnect: React.FC = () => {
       if (thingspeakChannel === "custom") {
         return thingspeakChannelId.trim() !== "" && thingspeakApiKey.trim() !== "";
       }
-      return true; // Predefined channel is selected
+      return true;
     }
-    return true; // Remote mode doesn't need inputs
+    return true;
   };
-
-  // Find a human-readable name for the connected ThingSpeak channel
+  
   const getConnectedChannelName = () => {
     if (!connectedChannelId) return "";
     const channel = predefinedChannels.find(c => c.id === connectedChannelId);
     return channel ? channel.name : `Canale ${connectedChannelId}`;
+  };
+  
+  const handleRetryThingSpeak = () => {
+    if (thingspeakChannel === "custom") {
+      connectToArduino(thingspeakChannelId, thingspeakApiKey, "thingspeak");
+    } else if (thingspeakChannel !== "") {
+      const channelId = parseInt(thingspeakChannel);
+      const channel = predefinedChannels.find(c => c.id === channelId);
+      if (channel) {
+        connectToArduino(channel.id.toString(), channel.apiKey, "thingspeak");
+      }
+    }
   };
   
   return (
@@ -245,7 +259,7 @@ const ArduinoConnect: React.FC = () => {
                   <SelectItem value="custom">Canale personalizzato</SelectItem>
                   {predefinedChannels.map(channel => (
                     <SelectItem key={channel.id} value={channel.id.toString()}>
-                      {channel.name}
+                      {channel.name} (ID: {channel.id})
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -254,13 +268,13 @@ const ArduinoConnect: React.FC = () => {
               {thingspeakChannel === "custom" && (
                 <div className="space-y-3">
                   <Input
-                    placeholder="ID Canale (es. 2271252)"
+                    placeholder="ID Canale (es. 2912718)"
                     value={thingspeakChannelId}
                     onChange={(e) => setThingspeakChannelId(e.target.value)}
                     disabled={connectionState === "connecting" || connectionState === "connected"}
                   />
                   <Input
-                    placeholder="API Key di Lettura"
+                    placeholder="API Key di Lettura (es. YIF25EQOHVOEKWZL)"
                     value={thingspeakApiKey}
                     onChange={(e) => setThingspeakApiKey(e.target.value)}
                     disabled={connectionState === "connecting" || connectionState === "connected"}
@@ -276,6 +290,34 @@ const ArduinoConnect: React.FC = () => {
                   </AlertDescription>
                 </Alert>
               )}
+              
+              {connectionMode === "thingspeak" && connectionState === "error" && (
+                <Alert variant="destructive" className="py-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription className="text-xs flex justify-between items-center">
+                    <span>Errore di connessione a ThingSpeak. Verifica ID e API key.</span>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="h-6 ml-2" 
+                      onClick={handleRetryThingSpeak}
+                    >
+                      <RefreshCw className="h-3 w-3 mr-1" /> Riprova
+                    </Button>
+                  </AlertDescription>
+                </Alert>
+              )}
+              
+              <Alert className="py-2 bg-blue-50 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300 border-blue-200">
+                <AlertDescription className="text-xs flex flex-col gap-2">
+                  <p>
+                    <strong>Suggerimento:</strong> Prova a connetterti al canale predefinito "Arduino Sensori GPS" che è funzionante.
+                  </p>
+                  <p>
+                    Per usare un canale ThingSpeak personalizzato, avrai bisogno dell'ID del canale e della API Key di lettura.
+                  </p>
+                </AlertDescription>
+              </Alert>
             </div>
           </TabsContent>
         </Tabs>

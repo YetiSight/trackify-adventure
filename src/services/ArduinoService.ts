@@ -1,7 +1,14 @@
 import { toast } from "@/hooks/use-toast";
 import { SensorData } from "@/types";
 import { create } from "zustand";
-import { fetchThingSpeakData, mapThingSpeakToSensorData, predefinedChannels, setupThingSpeakPolling } from "./ThingSpeakService";
+import { 
+  fetchThingSpeakData, 
+  mapThingSpeakToSensorData, 
+  predefinedChannels, 
+  setupThingSpeakPolling,
+  findChannelConfig,
+  getDefaultFieldMapping
+} from "./ThingSpeakService";
 
 type ArduinoConnectionState = "disconnected" | "connecting" | "connected" | "error";
 type ConnectionMode = "direct" | "remote" | "thingspeak";
@@ -30,7 +37,7 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
   connection: null,
   connectionState: "disconnected",
   connectionMode: "direct",
-  secureMode: "secure", // Default to secure connections
+  secureMode: "secure",
   sensorData: null,
   lastUpdated: null,
   errorType: null,
@@ -39,21 +46,17 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
   thingspeakApiKey: null,
   
   connectToArduino: (ipAddress: string, port = "80", mode = "direct", secure = "secure") => {
-    // First disconnect if already connected
     const { connection, thingspeakCleanup } = get();
     if (connection) {
       connection.close();
     }
     
-    // Clean up any existing ThingSpeak polling
     if (thingspeakCleanup) {
       thingspeakCleanup();
       set({ thingspeakCleanup: null });
     }
     
-    // If mode is ThingSpeak, use ThingSpeak connection function instead
     if (mode === "thingspeak") {
-      // Try to find a predefined channel with this ID
       const channelId = parseInt(ipAddress);
       if (isNaN(channelId)) {
         toast({
@@ -65,12 +68,11 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
         return;
       }
       
-      const apiKey = port; // Using port param as apiKey for simplicity
+      const apiKey = port;
       get().connectToThingSpeak(channelId, apiKey);
       return;
     }
     
-    // Validate inputs for direct/remote mode
     if (!ipAddress.trim()) {
       toast({
         title: "Errore di connessione",
@@ -84,18 +86,13 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
     set({ connectionState: "connecting", connectionMode: mode, secureMode: secure, errorType: null });
     
     try {
-      // Format WebSocket URL based on connection mode
       let wsUrl;
       
       if (mode === "direct") {
-        // Protocol prefix based on security setting
         const protocol = secure === "secure" ? "wss://" : "ws://";
-        
-        // Direct connection to Arduino on the same network
         wsUrl = `${protocol}${ipAddress}:${port}/`;
         console.log(`Connecting directly to Arduino WebSocket URL: ${wsUrl}`);
         
-        // Check for HTTPS mixed content warning
         if (secure === "insecure" && window.location.protocol === "https:") {
           console.warn("Attempting insecure WebSocket connection from HTTPS page. This may be blocked by the browser.");
           toast({
@@ -105,13 +102,9 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
           });
         }
       } else {
-        // Remote connection through a broker service
-        // In a real implementation, this would be a WebSocket broker URL
         wsUrl = `wss://remote-arduino-broker.example.com/connect?device=${ipAddress}`;
         console.log("Connecting remotely through broker to Arduino:", wsUrl);
         
-        // Since we can't actually connect to a non-existent broker in this demo,
-        // we'll simulate remote connection with mock data
         setTimeout(() => {
           toast({
             title: "Modalità remota",
@@ -119,10 +112,8 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
             variant: "default",
           });
           
-          // In a real app, we would connect to an actual broker service
           set({ connectionState: "connected" });
           
-          // Start sending mock data every 2 seconds
           const mockDataInterval = setInterval(() => {
             const mockData: SensorData = {
               ultrasonic: {
@@ -164,19 +155,14 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
             set({ sensorData: mockData, lastUpdated: Date.now() });
           }, 2000);
           
-          // Store the interval ID in a custom property on the window object
-          // for cleanup when disconnecting
           (window as any).__mockDataInterval = mockDataInterval;
         }, 1500);
         
-        // Return early since we're simulating the connection
         return;
       }
       
-      // For direct mode, proceed with actual WebSocket connection
       const ws = new WebSocket(wsUrl);
       
-      // Add connection timeout
       const connectionTimeout = setTimeout(() => {
         if (get().connectionState === "connecting") {
           ws.close();
@@ -188,7 +174,7 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
             variant: "destructive",
           });
         }
-      }, 10000); // 10 seconds timeout
+      }, 10000);
       
       ws.onopen = () => {
         clearTimeout(connectionTimeout);
@@ -222,14 +208,12 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
         
         let errorType: ConnectionError = "unknown";
         
-        // Try to determine the nature of the error
         if (secure === "secure") {
           errorType = "network";
         }
         
         set({ connectionState: "error", errorType, connection: null });
         
-        // Check if this might be a mixed content issue
         if (secure === "insecure" && window.location.protocol === "https:") {
           toast({
             title: "Errore di sicurezza",
@@ -272,14 +256,12 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
   },
   
   connectToThingSpeak: (channelId: number, apiKey: string) => {
-    // First disconnect if already connected
     const { connection, thingspeakCleanup } = get();
     if (connection) {
       connection.close();
       set({ connection: null });
     }
     
-    // Clean up any existing ThingSpeak polling
     if (thingspeakCleanup) {
       thingspeakCleanup();
     }
@@ -292,19 +274,23 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
       thingspeakApiKey: apiKey
     });
     
-    // Attempt to fetch data once immediately to verify connection
+    console.log(`Connecting to ThingSpeak channel: ${channelId} with API key: ${apiKey}`);
+    
     fetchThingSpeakData(channelId, apiKey)
       .then(data => {
-        // Find the field mapping for this channel
-        const channel = predefinedChannels.find(c => c.id === channelId);
+        let channel = findChannelConfig(channelId);
+        let fieldMapping;
+        
         if (!channel) {
-          throw new Error("Channel configuration not found");
+          console.log("Channel configuration not found in predefined list, using default mapping");
+          fieldMapping = getDefaultFieldMapping();
+        } else {
+          console.log(`Using predefined configuration for channel: ${channel.name}`);
+          fieldMapping = channel.fields;
         }
         
-        // Map the data to our format
-        const sensorData = mapThingSpeakToSensorData(data, channel.fields);
+        const sensorData = mapThingSpeakToSensorData(data, fieldMapping);
         
-        // Update state with the fetched data
         set({ 
           sensorData, 
           lastUpdated: Date.now(), 
@@ -313,14 +299,13 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
         
         toast({
           title: "Connessione ThingSpeak stabilita",
-          description: `Connesso al canale: ${channel.name}`,
+          description: channel ? `Connesso al canale: ${channel.name}` : `Connesso al canale: ${channelId}`,
         });
         
-        // Set up continuous polling
         const cleanup = setupThingSpeakPolling(
           channelId,
           apiKey,
-          channel.fields,
+          fieldMapping,
           (newData) => {
             set({ sensorData: newData, lastUpdated: Date.now() });
           }
@@ -346,7 +331,6 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
   },
   
   reconnectWithInsecure: (ipAddress: string, port: string) => {
-    // Helper function to quickly retry with insecure connection
     const { connectToArduino } = get();
     connectToArduino(ipAddress, port, "direct", "insecure");
   },
@@ -354,13 +338,11 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
   disconnectFromArduino: () => {
     const { connection, connectionMode, thingspeakCleanup } = get();
     
-    // Clear mock data interval if in remote mode
     if (connectionMode === "remote" && (window as any).__mockDataInterval) {
       clearInterval((window as any).__mockDataInterval);
       (window as any).__mockDataInterval = null;
     }
     
-    // Clean up ThingSpeak polling if active
     if (thingspeakCleanup) {
       thingspeakCleanup();
     }
