@@ -75,7 +75,7 @@ const Session: React.FC = () => {
                 </TabsContent>
                 <TabsContent value="map" className="mt-0">
                   <div className="h-[400px] w-full rounded-md overflow-hidden border">
-                    <MapView trackingMode={true} />
+                    <MapView />
                   </div>
                 </TabsContent>
               </CardContent>

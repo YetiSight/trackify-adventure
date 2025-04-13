@@ -1,8 +1,8 @@
-
 import { create } from "zustand";
 import { GeoPoint, SensorData } from "@/types";
 import { useArduinoStore } from "./ArduinoService";
 import { toast } from "@/hooks/use-toast";
+import * as React from "react";
 
 // Definizione dello stato della sessione
 interface SessionState {
