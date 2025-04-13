@@ -1,3 +1,4 @@
+
 import { create } from "zustand";
 import { GeoPoint, SensorData } from "@/types";
 import { useArduinoStore } from "./ArduinoService";
@@ -27,6 +28,7 @@ interface SessionState {
   stopSession: () => void;
   resetSession: () => void;
   updateWithSensorData: (data: SensorData) => void;
+  updateDuration: () => void; // Nuovo metodo per aggiornare la durata indipendentemente
 }
 
 // Helper function per calcolare la distanza tra due punti GPS in km
@@ -113,6 +115,15 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     });
   },
   
+  updateDuration: () => {
+    const { isActive, startTime } = get();
+    if (isActive && startTime) {
+      const now = Date.now();
+      const duration = (now - startTime) / 1000; // in secondi
+      set({ duration });
+    }
+  },
+  
   updateWithSensorData: (data: SensorData) => {
     if (!get().isActive || !data.gps) return;
     
@@ -180,8 +191,28 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 // Hook per aggiornare automaticamente la sessione con i dati del sensore
 export function useSessionUpdater() {
   const { sensorData, lastUpdated, connectionState } = useArduinoStore();
-  const { isActive, updateWithSensorData } = useSessionStore();
+  const { isActive, updateWithSensorData, updateDuration } = useSessionStore();
   
+  // Effetto per aggiornare la durata ogni secondo, indipendentemente dai dati ThingSpeak
+  React.useEffect(() => {
+    let timerId: number | undefined;
+    
+    if (isActive) {
+      // Aggiorna la durata ogni secondo
+      timerId = window.setInterval(() => {
+        updateDuration();
+      }, 1000);
+    }
+    
+    // Cleanup al cambio di stato o smontaggio
+    return () => {
+      if (timerId) {
+        clearInterval(timerId);
+      }
+    };
+  }, [isActive, updateDuration]);
+  
+  // Effetto per processare i dati quando arrivano da ThingSpeak
   React.useEffect(() => {
     // Aggiorna la sessione solo se è attiva e ci sono nuovi dati del sensore
     if (isActive && sensorData && connectionState === "connected") {
