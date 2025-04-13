@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { getCurrentUser, getUserSessions, calculateTotalStats } from "@/utils/mockData";
 import UserStatsCard from "@/components/UserStatsCard";
@@ -15,6 +15,11 @@ const Profile: React.FC = () => {
   
   // Ottieni le sessioni salvate dallo store
   const { savedSessions } = useSessionStore();
+  
+  // Debug - Visualizza le sessioni nello store
+  useEffect(() => {
+    console.log("Saved sessions in store:", savedSessions);
+  }, [savedSessions]);
   
   // Combina le sessioni mock con quelle registrate in tempo reale
   const userSessions = [...savedSessions, ...mockSessions];

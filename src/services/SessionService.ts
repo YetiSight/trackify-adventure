@@ -225,7 +225,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
         day: 'numeric'
       }),
       distance: parseFloat(distance.toFixed(2)),
-      duration: Math.round(duration / 60), // Converti secondi in minuti per il salvataggio
+      duration: Math.round(duration), // Salviamo i secondi invece di convertirli in minuti
       maxSpeed: parseFloat(maxSpeed.toFixed(1)),
       avgSpeed: parseFloat(averageSpeed.toFixed(1)),
       maxAltitude: Math.round(maxAltitude),
@@ -237,6 +237,10 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     // Aggiungi la sessione all'elenco delle sessioni salvate
     const updatedSessions = [newSession, ...get().savedSessions];
     set({ savedSessions: updatedSessions });
+    
+    // Debug message to help track session saving
+    console.log("Sessione salvata:", newSession);
+    console.log("Sessioni totali:", updatedSessions.length);
     
     toast({
       title: "Sessione salvata",

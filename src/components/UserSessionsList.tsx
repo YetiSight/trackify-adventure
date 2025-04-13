@@ -29,56 +29,62 @@ const UserSessionsList: React.FC<UserSessionsListProps> = ({ sessions }) => {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {sessions.map((session) => (
-            <div 
-              key={session.id} 
-              className="border border-snow-100 dark:border-gray-800 rounded-lg p-4 hover:shadow-md transition-shadow"
-            >
-              <div className="flex justify-between items-start mb-2">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-snow-600" />
-                  <span className="text-sm text-gray-600 dark:text-gray-400">{session.date}</span>
+          {sessions && sessions.length > 0 ? (
+            sessions.map((session) => (
+              <div 
+                key={session.id} 
+                className="border border-snow-100 dark:border-gray-800 rounded-lg p-4 hover:shadow-md transition-shadow"
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-snow-600" />
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{session.date}</span>
+                  </div>
+                  <Badge className={getSlopeColor(session.slopeLevel)}>
+                    {session.slopeLevel && session.slopeLevel.charAt(0).toUpperCase() + session.slopeLevel.slice(1)}
+                  </Badge>
                 </div>
-                <Badge className={getSlopeColor(session.slopeLevel)}>
-                  {session.slopeLevel && session.slopeLevel.charAt(0).toUpperCase() + session.slopeLevel.slice(1)}
-                </Badge>
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                      <Ruler className="w-4 h-4" />
+                      <span>Distanza</span>
+                    </div>
+                    <span className="font-semibold">{session.distance} km</span>
+                  </div>
+                  
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                      <Clock className="w-4 h-4" />
+                      <span>Durata</span>
+                    </div>
+                    <span className="font-semibold">{formatTime(session.duration)}</span>
+                  </div>
+                  
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                      <Map className="w-4 h-4" />
+                      <span>Altitudine max</span>
+                    </div>
+                    <span className="font-semibold">{session.maxAltitude} m</span>
+                  </div>
+                  
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                      <Map className="w-4 h-4" />
+                      <span>Velocità max</span>
+                    </div>
+                    <span className="font-semibold">{session.maxSpeed} km/h</span>
+                  </div>
+                </div>
               </div>
-              
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
-                    <Ruler className="w-4 h-4" />
-                    <span>Distanza</span>
-                  </div>
-                  <span className="font-semibold">{session.distance} km</span>
-                </div>
-                
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
-                    <Clock className="w-4 h-4" />
-                    <span>Durata</span>
-                  </div>
-                  <span className="font-semibold">{formatTime(session.duration)}</span>
-                </div>
-                
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
-                    <Map className="w-4 h-4" />
-                    <span>Altitudine max</span>
-                  </div>
-                  <span className="font-semibold">{session.maxAltitude} m</span>
-                </div>
-                
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
-                    <Map className="w-4 h-4" />
-                    <span>Velocità max</span>
-                  </div>
-                  <span className="font-semibold">{session.maxSpeed} km/h</span>
-                </div>
-              </div>
+            ))
+          ) : (
+            <div className="text-center py-6 text-gray-500">
+              Nessuna sessione registrata
             </div>
-          ))}
+          )}
         </div>
       </CardContent>
     </Card>
