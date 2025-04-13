@@ -9,7 +9,8 @@ import {
   Menu, 
   X,
   Users,
-  Calendar
+  Calendar,
+  Activity
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -31,6 +32,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       name: "Dashboard",
       path: "/",
       icon: <Home className="h-5 w-5" />
+    },
+    {
+      name: "Sessione",
+      path: "/session",
+      icon: <Activity className="h-5 w-5" />
     },
     {
       name: "Classifica",
