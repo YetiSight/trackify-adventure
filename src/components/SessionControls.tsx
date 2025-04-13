@@ -3,15 +3,27 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { useSessionStore } from "@/services/SessionService";
 import { useArduinoStore } from "@/services/ArduinoService";
-import { Play, Square, RotateCcw, AlertTriangle, CircleStop } from "lucide-react";
+import { Play, Square, RotateCcw, AlertTriangle, Save } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useToast } from "@/hooks/use-toast";
 
 const SessionControls: React.FC = () => {
-  const { isActive, startSession, stopSession, resetSession } = useSessionStore();
+  const { isActive, startSession, stopSession, resetSession, saveSession } = useSessionStore();
   const { connectionState, connectionMode } = useArduinoStore();
+  const { toast } = useToast();
   
   const isConnected = connectionState === "connected";
   const isThinkspeakConnected = isConnected && connectionMode === "thingspeak";
+
+  const handleTerminateSession = () => {
+    if (isActive) {
+      stopSession();
+      toast({
+        title: "Sessione terminata",
+        description: "La sessione è stata salvata nel tuo profilo",
+      });
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -40,15 +52,15 @@ const SessionControls: React.FC = () => {
           className="bg-red-600 hover:bg-red-700"
         >
           <Square className="mr-2 h-4 w-4" />
-          Ferma Sessione
+          Pausa
         </Button>
 
         <Button
-          onClick={stopSession}
+          onClick={handleTerminateSession}
           disabled={!isActive}
           className="bg-purple-600 hover:bg-purple-700"
         >
-          <CircleStop className="mr-2 h-4 w-4" />
+          <Save className="mr-2 h-4 w-4" />
           Termina Sessione
         </Button>
         

@@ -21,6 +21,9 @@ const getSlopeColor = (level: string | undefined) => {
 };
 
 const UserSessionsList: React.FC<UserSessionsListProps> = ({ sessions }) => {
+  // Verifica se sessions è undefined o null
+  const validSessions = sessions ? sessions : [];
+  
   return (
     <Card>
       <CardHeader>
@@ -29,8 +32,8 @@ const UserSessionsList: React.FC<UserSessionsListProps> = ({ sessions }) => {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {sessions && sessions.length > 0 ? (
-            sessions.map((session) => (
+          {validSessions && validSessions.length > 0 ? (
+            validSessions.map((session) => (
               <div 
                 key={session.id} 
                 className="border border-snow-100 dark:border-gray-800 rounded-lg p-4 hover:shadow-md transition-shadow"

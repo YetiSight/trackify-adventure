@@ -22,7 +22,7 @@ const Profile: React.FC = () => {
   }, [savedSessions]);
   
   // Combina le sessioni mock con quelle registrate in tempo reale
-  const userSessions = [...savedSessions, ...mockSessions];
+  const userSessions = [...(savedSessions || []), ...mockSessions];
   
   // Calcola le statistiche totali includendo le sessioni salvate
   const totalStats = calculateTotalStats(userSessions);

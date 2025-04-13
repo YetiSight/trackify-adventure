@@ -3,6 +3,7 @@ import { create } from "zustand";
 import { GeoPoint, SensorData, Session } from "@/types";
 import { useArduinoStore } from "./ArduinoService";
 import { toast } from "@/hooks/use-toast";
+import { persist } from "zustand/middleware";
 
 // Definizione dello stato della sessione
 interface SessionState {
@@ -47,68 +48,10 @@ function calculateDistance(point1: GeoPoint, point2: GeoPoint): number {
   return R * c;
 }
 
-// Creazione dello store per la sessione
-export const useSessionStore = create<SessionState>((set, get) => ({
-  isActive: false,
-  startTime: null,
-  duration: 0,
-  path: [],
-  distance: 0,
-  averageSpeed: 0,
-  maxSpeed: 0,
-  currentSpeed: 0,
-  startAltitude: null,
-  maxAltitude: 0,
-  savedSessions: [],
-  
-  startSession: () => {
-    const { connectionState } = useArduinoStore.getState();
-    
-    if (connectionState !== "connected") {
-      toast({
-        title: "Errore",
-        description: "Connettiti a ThingSpeak prima di iniziare la sessione",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    // Inizializza la sessione
-    set({
-      isActive: true,
-      startTime: Date.now(),
-      duration: 0,
-      path: [],
-      distance: 0,
-      averageSpeed: 0,
-      maxSpeed: 0,
-      currentSpeed: 0,
-      startAltitude: null,
-      maxAltitude: 0,
-    });
-    
-    toast({
-      title: "Sessione avviata",
-      description: "La registrazione dei dati è iniziata",
-    });
-  },
-  
-  stopSession: () => {
-    if (get().isActive) {
-      set({ isActive: false });
-      
-      // Salva automaticamente la sessione quando viene fermata
-      get().saveSession();
-      
-      toast({
-        title: "Sessione fermata",
-        description: `Sessione completata. Distanza: ${get().distance.toFixed(2)} km`,
-      });
-    }
-  },
-  
-  resetSession: () => {
-    set({
+// Creazione dello store per la sessione con persistenza
+export const useSessionStore = create<SessionState>()(
+  persist(
+    (set, get) => ({
       isActive: false,
       startTime: null,
       duration: 0,
@@ -119,135 +62,204 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       currentSpeed: 0,
       startAltitude: null,
       maxAltitude: 0,
-    });
-  },
-  
-  updateDuration: () => {
-    const { isActive, startTime } = get();
-    if (isActive && startTime) {
-      const now = Date.now();
-      const duration = (now - startTime) / 1000; // in secondi
-      set({ duration });
+      savedSessions: [],
+      
+      startSession: () => {
+        const { connectionState } = useArduinoStore.getState();
+        
+        if (connectionState !== "connected") {
+          toast({
+            title: "Errore",
+            description: "Connettiti a ThingSpeak prima di iniziare la sessione",
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        // Inizializza la sessione
+        set({
+          isActive: true,
+          startTime: Date.now(),
+          duration: 0,
+          path: [],
+          distance: 0,
+          averageSpeed: 0,
+          maxSpeed: 0,
+          currentSpeed: 0,
+          startAltitude: null,
+          maxAltitude: 0,
+        });
+        
+        toast({
+          title: "Sessione avviata",
+          description: "La registrazione dei dati è iniziata",
+        });
+      },
+      
+      stopSession: () => {
+        if (get().isActive) {
+          set({ isActive: false });
+          
+          // Salva automaticamente la sessione quando viene fermata
+          get().saveSession();
+          
+          console.log("Sessione fermata, salvata automaticamente");
+          
+          toast({
+            title: "Sessione fermata",
+            description: `Sessione completata. Distanza: ${get().distance.toFixed(2)} km`,
+          });
+        }
+      },
+      
+      resetSession: () => {
+        set({
+          isActive: false,
+          startTime: null,
+          duration: 0,
+          path: [],
+          distance: 0,
+          averageSpeed: 0,
+          maxSpeed: 0,
+          currentSpeed: 0,
+          startAltitude: null,
+          maxAltitude: 0,
+        });
+      },
+      
+      updateDuration: () => {
+        const { isActive, startTime } = get();
+        if (isActive && startTime) {
+          const now = Date.now();
+          const duration = (now - startTime) / 1000; // in secondi
+          set({ duration });
+        }
+      },
+      
+      updateWithSensorData: (data: SensorData) => {
+        if (!get().isActive || !data.gps) return;
+        
+        const { path, startTime, distance } = get();
+        const currentPoint = data.gps.position;
+        const currentAltitude = data.imu?.altitude || 0;
+        
+        // Aggiorna la durata
+        const now = Date.now();
+        const duration = startTime ? (now - startTime) / 1000 : 0;
+        
+        // Controlla se è la prima posizione GPS
+        if (path.length === 0) {
+          // Salva la prima posizione
+          set({
+            path: [{ ...currentPoint, timestamp: now }],
+            startAltitude: currentAltitude,
+            maxAltitude: currentAltitude,
+            duration,
+          });
+          return;
+        }
+        
+        // Calcola la distanza dal punto precedente
+        const lastPoint = path[path.length - 1];
+        const segmentDistance = calculateDistance(lastPoint, currentPoint);
+        
+        // Verifica se la posizione è cambiata in modo significativo (per evitare micromovimenti)
+        if (segmentDistance < 0.001) {
+          // Aggiorna solo la durata se il movimento è troppo piccolo
+          set({ duration });
+          return;
+        }
+        
+        // Calcola la nuova velocità istantanea
+        const timeDiff = (now - (lastPoint.timestamp || now)) / 1000; // in secondi
+        const speedInKmh = timeDiff > 0 ? (segmentDistance / timeDiff) * 3600 : 0;
+        
+        // Aggiorna il percorso e la distanza totale
+        const newDistance = distance + segmentDistance;
+        const newPath = [...path, { ...currentPoint, timestamp: now, speed: speedInKmh }];
+        
+        // Calcola velocità media
+        const avgSpeed = startTime && duration > 0 ? (newDistance / (duration / 3600)) : 0;
+        
+        // Aggiorna velocità massima
+        const maxSpeed = Math.max(get().maxSpeed, speedInKmh);
+        
+        // Aggiorna altitudine massima
+        const maxAltitude = Math.max(get().maxAltitude, currentAltitude);
+        
+        // Aggiorna lo stato
+        set({
+          path: newPath,
+          distance: newDistance,
+          duration,
+          averageSpeed: avgSpeed,
+          maxSpeed,
+          currentSpeed: speedInKmh,
+          maxAltitude,
+        });
+      },
+      
+      saveSession: () => {
+        const { 
+          duration, 
+          distance, 
+          averageSpeed, 
+          maxSpeed, 
+          maxAltitude, 
+          path, 
+          startAltitude 
+        } = get();
+        
+        // Verifica che ci siano dati sufficienti per salvare la sessione
+        if (distance < 0.01 || duration < 10) {
+          toast({
+            title: "Sessione non salvata",
+            description: "La sessione è troppo breve per essere salvata",
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        // Crea un oggetto sessione
+        const newSession: Session = {
+          id: Date.now().toString(),
+          userId: "current-user", // In un'app reale useremmo l'ID dell'utente autenticato
+          date: new Date().toLocaleDateString('it-IT', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+          }),
+          distance: parseFloat(distance.toFixed(2)),
+          duration: Math.round(duration), // Salviamo i secondi invece di convertirli in minuti
+          maxSpeed: parseFloat(maxSpeed.toFixed(1)),
+          avgSpeed: parseFloat(averageSpeed.toFixed(1)),
+          maxAltitude: Math.round(maxAltitude),
+          altitudeDifference: startAltitude ? Math.round(maxAltitude - startAltitude) : 0,
+          path: path,
+          slopeLevel: determineSlopeLevel(maxSpeed, distance)
+        };
+        
+        // Aggiungi la sessione all'elenco delle sessioni salvate
+        set((state) => ({ 
+          savedSessions: [newSession, ...state.savedSessions]
+        }));
+        
+        console.log("Sessione salvata:", newSession);
+        
+        toast({
+          title: "Sessione salvata",
+          description: "La sessione è stata salvata nel tuo profilo",
+        });
+      }
+    }),
+    {
+      name: "ski-session-storage", // nome della chiave in localStorage
+      partialize: (state) => ({ 
+        savedSessions: state.savedSessions 
+      }), // salva solo le sessioni completate
     }
-  },
-  
-  updateWithSensorData: (data: SensorData) => {
-    if (!get().isActive || !data.gps) return;
-    
-    const { path, startTime, distance } = get();
-    const currentPoint = data.gps.position;
-    const currentAltitude = data.imu?.altitude || 0;
-    
-    // Aggiorna la durata
-    const now = Date.now();
-    const duration = startTime ? (now - startTime) / 1000 : 0;
-    
-    // Controlla se è la prima posizione GPS
-    if (path.length === 0) {
-      // Salva la prima posizione
-      set({
-        path: [{ ...currentPoint, timestamp: now }],
-        startAltitude: currentAltitude,
-        maxAltitude: currentAltitude,
-        duration,
-      });
-      return;
-    }
-    
-    // Calcola la distanza dal punto precedente
-    const lastPoint = path[path.length - 1];
-    const segmentDistance = calculateDistance(lastPoint, currentPoint);
-    
-    // Verifica se la posizione è cambiata in modo significativo (per evitare micromovimenti)
-    if (segmentDistance < 0.001) {
-      // Aggiorna solo la durata se il movimento è troppo piccolo
-      set({ duration });
-      return;
-    }
-    
-    // Calcola la nuova velocità istantanea
-    const timeDiff = (now - (lastPoint.timestamp || now)) / 1000; // in secondi
-    const speedInKmh = timeDiff > 0 ? (segmentDistance / timeDiff) * 3600 : 0;
-    
-    // Aggiorna il percorso e la distanza totale
-    const newDistance = distance + segmentDistance;
-    const newPath = [...path, { ...currentPoint, timestamp: now, speed: speedInKmh }];
-    
-    // Calcola velocità media
-    const avgSpeed = startTime && duration > 0 ? (newDistance / (duration / 3600)) : 0;
-    
-    // Aggiorna velocità massima
-    const maxSpeed = Math.max(get().maxSpeed, speedInKmh);
-    
-    // Aggiorna altitudine massima
-    const maxAltitude = Math.max(get().maxAltitude, currentAltitude);
-    
-    // Aggiorna lo stato
-    set({
-      path: newPath,
-      distance: newDistance,
-      duration,
-      averageSpeed: avgSpeed,
-      maxSpeed,
-      currentSpeed: speedInKmh,
-      maxAltitude,
-    });
-  },
-  
-  saveSession: () => {
-    const { 
-      duration, 
-      distance, 
-      averageSpeed, 
-      maxSpeed, 
-      maxAltitude, 
-      path, 
-      startAltitude 
-    } = get();
-    
-    // Verifica che ci siano dati sufficienti per salvare la sessione
-    if (distance < 0.01 || duration < 10) {
-      toast({
-        title: "Sessione non salvata",
-        description: "La sessione è troppo breve per essere salvata",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    // Crea un oggetto sessione
-    const newSession: Session = {
-      id: Date.now().toString(),
-      userId: "current-user", // In un'app reale useremmo l'ID dell'utente autenticato
-      date: new Date().toLocaleDateString('it-IT', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      }),
-      distance: parseFloat(distance.toFixed(2)),
-      duration: Math.round(duration), // Salviamo i secondi invece di convertirli in minuti
-      maxSpeed: parseFloat(maxSpeed.toFixed(1)),
-      avgSpeed: parseFloat(averageSpeed.toFixed(1)),
-      maxAltitude: Math.round(maxAltitude),
-      altitudeDifference: startAltitude ? Math.round(maxAltitude - startAltitude) : 0,
-      path: path,
-      slopeLevel: determineSlopeLevel(maxSpeed, distance)
-    };
-    
-    // Aggiungi la sessione all'elenco delle sessioni salvate
-    const updatedSessions = [newSession, ...get().savedSessions];
-    set({ savedSessions: updatedSessions });
-    
-    // Debug message to help track session saving
-    console.log("Sessione salvata:", newSession);
-    console.log("Sessioni totali:", updatedSessions.length);
-    
-    toast({
-      title: "Sessione salvata",
-      description: "La sessione è stata salvata nel tuo profilo",
-    });
-  }
-}));
+  )
+);
 
 // Funzione per determinare il livello di difficoltà della pista in base alla velocità massima e distanza
 function determineSlopeLevel(maxSpeed: number, distance: number): "easy" | "medium" | "hard" | "extreme" {
