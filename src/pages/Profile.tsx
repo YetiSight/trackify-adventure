@@ -6,12 +6,20 @@ import UserStatsCard from "@/components/UserStatsCard";
 import UserSessionsList from "@/components/UserSessionsList";
 import NotificationsCard from "@/components/NotificationsCard";
 import { getNotifications } from "@/utils/mockData";
+import { useSessionStore } from "@/services/SessionService";
 
 const Profile: React.FC = () => {
   const currentUser = getCurrentUser();
-  const userSessions = getUserSessions(currentUser.id);
+  const mockSessions = getUserSessions(currentUser.id);
   const notifications = getNotifications();
   
+  // Ottieni le sessioni salvate dallo store
+  const { savedSessions } = useSessionStore();
+  
+  // Combina le sessioni mock con quelle registrate in tempo reale
+  const userSessions = [...savedSessions, ...mockSessions];
+  
+  // Calcola le statistiche totali includendo le sessioni salvate
   const totalStats = calculateTotalStats(userSessions);
 
   return (

@@ -1,9 +1,8 @@
-
+import React from "react";
 import { create } from "zustand";
-import { GeoPoint, SensorData } from "@/types";
+import { GeoPoint, SensorData, Session } from "@/types";
 import { useArduinoStore } from "./ArduinoService";
 import { toast } from "@/hooks/use-toast";
-import * as React from "react";
 
 // Definizione dello stato della sessione
 interface SessionState {
@@ -23,12 +22,16 @@ interface SessionState {
   startAltitude: number | null;  // in metri
   maxAltitude: number;  // in metri
   
+  // Sessioni salvate
+  savedSessions: Session[];
+  
   // Controlli
   startSession: () => void;
   stopSession: () => void;
   resetSession: () => void;
   updateWithSensorData: (data: SensorData) => void;
   updateDuration: () => void; // Nuovo metodo per aggiornare la durata indipendentemente
+  saveSession: () => void; // Nuovo metodo per salvare la sessione corrente
 }
 
 // Helper function per calcolare la distanza tra due punti GPS in km
@@ -56,6 +59,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   currentSpeed: 0,
   startAltitude: null,
   maxAltitude: 0,
+  savedSessions: [],
   
   startSession: () => {
     const { connectionState } = useArduinoStore.getState();
@@ -92,6 +96,9 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   stopSession: () => {
     if (get().isActive) {
       set({ isActive: false });
+      
+      // Salva automaticamente la sessione quando viene fermata
+      get().saveSession();
       
       toast({
         title: "Sessione fermata",
@@ -186,7 +193,65 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       maxAltitude,
     });
   },
+  
+  saveSession: () => {
+    const { 
+      duration, 
+      distance, 
+      averageSpeed, 
+      maxSpeed, 
+      maxAltitude, 
+      path, 
+      startAltitude 
+    } = get();
+    
+    // Verifica che ci siano dati sufficienti per salvare la sessione
+    if (distance < 0.01 || duration < 10) {
+      toast({
+        title: "Sessione non salvata",
+        description: "La sessione è troppo breve per essere salvata",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Crea un oggetto sessione
+    const newSession: Session = {
+      id: Date.now().toString(),
+      userId: "current-user", // In un'app reale useremmo l'ID dell'utente autenticato
+      date: new Date().toLocaleDateString('it-IT', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      }),
+      distance: parseFloat(distance.toFixed(2)),
+      duration: Math.round(duration / 60), // Converti secondi in minuti per il salvataggio
+      maxSpeed: parseFloat(maxSpeed.toFixed(1)),
+      avgSpeed: parseFloat(averageSpeed.toFixed(1)),
+      maxAltitude: Math.round(maxAltitude),
+      altitudeDifference: startAltitude ? Math.round(maxAltitude - startAltitude) : 0,
+      path: path,
+      slopeLevel: determineSlopeLevel(maxSpeed, distance)
+    };
+    
+    // Aggiungi la sessione all'elenco delle sessioni salvate
+    const updatedSessions = [newSession, ...get().savedSessions];
+    set({ savedSessions: updatedSessions });
+    
+    toast({
+      title: "Sessione salvata",
+      description: "La sessione è stata salvata nel tuo profilo",
+    });
+  }
 }));
+
+// Funzione per determinare il livello di difficoltà della pista in base alla velocità massima e distanza
+function determineSlopeLevel(maxSpeed: number, distance: number): "easy" | "medium" | "hard" | "extreme" {
+  if (maxSpeed > 60) return "extreme";
+  if (maxSpeed > 40) return "hard";
+  if (maxSpeed > 20) return "medium";
+  return "easy";
+}
 
 // Hook per aggiornare automaticamente la sessione con i dati del sensore
 export function useSessionUpdater() {

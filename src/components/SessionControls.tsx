@@ -3,7 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { useSessionStore } from "@/services/SessionService";
 import { useArduinoStore } from "@/services/ArduinoService";
-import { Play, Square, RotateCcw, AlertTriangle } from "lucide-react";
+import { Play, Square, RotateCcw, AlertTriangle, CircleStop } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const SessionControls: React.FC = () => {
@@ -41,6 +41,15 @@ const SessionControls: React.FC = () => {
         >
           <Square className="mr-2 h-4 w-4" />
           Ferma Sessione
+        </Button>
+
+        <Button
+          onClick={stopSession}
+          disabled={!isActive}
+          className="bg-purple-600 hover:bg-purple-700"
+        >
+          <CircleStop className="mr-2 h-4 w-4" />
+          Termina Sessione
         </Button>
         
         <Button
