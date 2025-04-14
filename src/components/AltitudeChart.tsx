@@ -15,10 +15,11 @@ const AltitudeChart: React.FC = () => {
     if (path.length === 0) return;
     
     // Take the last 20 points for the chart
-    const dataPoints = path.slice(-20).map((point, index) => {
+    const dataPoints = path.slice(-20).map((point) => {
       const date = point.timestamp ? new Date(point.timestamp) : new Date();
+      const formattedTime = `${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
       return {
-        time: `${date.getMinutes()}:${date.getSeconds().toString().padStart(2, '0')}`,
+        time: formattedTime,
         altitude: point.altitude || 0
       };
     });
@@ -71,13 +72,15 @@ const AltitudeChart: React.FC = () => {
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="time" />
-            <YAxis />
+            <YAxis 
+              domain={['auto', 'auto']}
+              tickFormatter={(value) => `${value}m`}
+            />
             <ChartTooltip
               content={
                 <ChartTooltipContent
                   indicator="dot"
-                  nameKey="altitude"
-                  labelKey="altitude"
+                  formatter={(value) => [`${value}m`, "Altitudine"]}
                 />
               }
             />
@@ -86,7 +89,7 @@ const AltitudeChart: React.FC = () => {
               dataKey="altitude" 
               stroke="#6366f1" 
               fill="#c4b5fd" 
-              name="Altitudine (m)"
+              name="Altitudine"
             />
           </AreaChart>
         </ChartContainer>
