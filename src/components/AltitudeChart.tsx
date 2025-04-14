@@ -46,6 +46,10 @@ const AltitudeChart: React.FC = () => {
     );
   }
   
+  // Calculate min and max for Y-axis to create a better visualization
+  const minAltitude = Math.max(0, Math.min(...chartData.map(d => d.altitude)) - 10);
+  const maxYAxis = Math.max(...chartData.map(d => d.altitude)) + 10;
+  
   return (
     <Card>
       <CardHeader>
@@ -73,7 +77,7 @@ const AltitudeChart: React.FC = () => {
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="time" />
             <YAxis 
-              domain={['auto', 'auto']}
+              domain={[minAltitude, maxYAxis]}
               tickFormatter={(value) => `${value}m`}
             />
             <ChartTooltip

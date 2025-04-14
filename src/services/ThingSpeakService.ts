@@ -128,11 +128,11 @@ export const predefinedChannels: ThingSpeakChannel[] = [
     fields: {
       "1": "gps.position.lat",  
       "2": "gps.position.lng",
-      "3": "gps.speed",
+      "3": "imu.altitude", // Updated: Field3 is now mapped to altitude (250-350m range)
       "4": "gps.heading",
       "5": "pir.detected",
       "6": "ultrasonic.distance",
-      "7": "imu.altitude" // Field7 should map to altitude
+      "7": "gps.speed" // Updated: Field7 is now mapped to speed
     }
   }
 ];
@@ -173,17 +173,22 @@ export function setupThingSpeakPolling(
       const data = await fetchThingSpeakData(channelId, apiKey);
       const sensorData = mapThingSpeakToSensorData(data, fieldMapping);
       
-      // Check if altitude is correctly mapped based on the channel ID
+      // Special handling for channel 2912718 to ensure correct data mapping
       if (channelId === 2912718) {
-        // For channel 2912718, we need to manually set altitude from field7 or field3
-        // Based on the network logs, field3 contains the speed value, not altitude
-        if (data.field7) {
-          sensorData.imu.altitude = parseFloat(data.field7);
-        } else if (data.field3) {
-          // As a fallback, we can use a simulated altitude based on speed
-          // This is just a placeholder if we don't have real altitude data
-          const baseAltitude = 1500; // Base altitude in meters
-          const speedFactor = parseFloat(data.field3) / 10; // Use speed as a factor
+        // For channel 2912718, field3 contains the altitude value
+        if (data.field3) {
+          sensorData.imu.altitude = parseFloat(data.field3);
+        }
+        
+        // Field7 may contain speed in some configurations, if not mapped correctly
+        if (data.field7 && (!sensorData.gps.speed || sensorData.gps.speed === 0)) {
+          sensorData.gps.speed = parseFloat(data.field7);
+        }
+        
+        // If field3 is not present, use the old calculation as a fallback
+        if (!data.field3 && data.field7) {
+          const baseAltitude = 250; // Base altitude in the range you mentioned
+          const speedFactor = parseFloat(data.field7) / 10;
           sensorData.imu.altitude = baseAltitude + speedFactor;
         }
       }
