@@ -6,6 +6,7 @@ import ArduinoConnect from "@/components/ArduinoConnect";
 import SessionStats from "@/components/SessionStats";
 import SessionControls from "@/components/SessionControls";
 import SpeedChart from "@/components/SpeedChart";
+import AltitudeChart from "@/components/AltitudeChart";
 import ConnectionStatus from "@/components/ConnectionStatus";
 import { useSessionUpdater } from "@/services/SessionService";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -64,7 +65,8 @@ const Session: React.FC = () => {
                 <div className="flex justify-between items-center">
                   <CardTitle>Visualizzazione Dati</CardTitle>
                   <TabsList>
-                    <TabsTrigger value="chart">Grafico</TabsTrigger>
+                    <TabsTrigger value="chart">Velocità</TabsTrigger>
+                    <TabsTrigger value="altitude">Altitudine</TabsTrigger>
                     <TabsTrigger value="map">Mappa</TabsTrigger>
                   </TabsList>
                 </div>
@@ -72,6 +74,9 @@ const Session: React.FC = () => {
               <CardContent className="pt-6">
                 <TabsContent value="chart" className="mt-0">
                   <SpeedChart />
+                </TabsContent>
+                <TabsContent value="altitude" className="mt-0">
+                  <AltitudeChart />
                 </TabsContent>
                 <TabsContent value="map" className="mt-0">
                   <div className="h-[400px] w-full rounded-md overflow-hidden border">

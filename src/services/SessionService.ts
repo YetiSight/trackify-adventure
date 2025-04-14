@@ -152,7 +152,7 @@ export const useSessionStore = create<SessionState>()(
         if (path.length === 0) {
           // Salva la prima posizione
           set({
-            path: [{ ...currentPoint, timestamp: now }],
+            path: [{ ...currentPoint, timestamp: now, altitude: currentAltitude }],
             startAltitude: currentAltitude,
             maxAltitude: currentAltitude,
             duration,
@@ -180,7 +180,12 @@ export const useSessionStore = create<SessionState>()(
         
         // Aggiorna il percorso e la distanza totale
         const newDistance = distance + segmentDistance;
-        const newPath = [...path, { ...currentPoint, timestamp: now, speed: speedInKmh }];
+        const newPath = [...path, { 
+          ...currentPoint, 
+          timestamp: now, 
+          speed: speedInKmh,
+          altitude: currentAltitude 
+        }];
         
         // Calcola velocità media
         const avgSpeed = startTime && duration > 0 ? (newDistance / (duration / 3600)) : 0;
