@@ -1,3 +1,4 @@
+
 import React from "react";
 import { create } from "zustand";
 import { GeoPoint, SensorData, Session } from "@/types";
@@ -31,8 +32,8 @@ interface SessionState {
   stopSession: () => void;
   resetSession: () => void;
   updateWithSensorData: (data: SensorData) => void;
-  updateDuration: () => void; // Nuovo metodo per aggiornare la durata indipendentemente
-  saveSession: () => void; // Nuovo metodo per salvare la sessione corrente
+  updateDuration: () => void;
+  saveSession: () => void;
 }
 
 // Helper function per calcolare la distanza tra due punti GPS in km
@@ -131,7 +132,7 @@ export const useSessionStore = create<SessionState>()(
         const { isActive, startTime } = get();
         if (isActive && startTime) {
           const now = Date.now();
-          const duration = (now - startTime) / 1000; // in secondi
+          const duration = Math.round((now - startTime) / 1000); // in secondi, arrotondato
           set({ duration });
         }
       },
@@ -145,7 +146,7 @@ export const useSessionStore = create<SessionState>()(
         
         // Aggiorna la durata
         const now = Date.now();
-        const duration = startTime ? (now - startTime) / 1000 : 0;
+        const duration = startTime ? Math.round((now - startTime) / 1000) : 0; // in secondi, arrotondato
         
         // Controlla se è la prima posizione GPS
         if (path.length === 0) {
@@ -170,9 +171,12 @@ export const useSessionStore = create<SessionState>()(
           return;
         }
         
-        // Calcola la nuova velocità istantanea
+        // Calcola la nuova velocità istantanea (limita a valori realistici)
         const timeDiff = (now - (lastPoint.timestamp || now)) / 1000; // in secondi
-        const speedInKmh = timeDiff > 0 ? (segmentDistance / timeDiff) * 3600 : 0;
+        let speedInKmh = timeDiff > 0 ? (segmentDistance / timeDiff) * 3600 : 0;
+        
+        // Limita la velocità a valori realistici per lo sci (max 150 km/h)
+        speedInKmh = Math.min(speedInKmh, 150);
         
         // Aggiorna il percorso e la distanza totale
         const newDistance = distance + segmentDistance;
@@ -181,8 +185,8 @@ export const useSessionStore = create<SessionState>()(
         // Calcola velocità media
         const avgSpeed = startTime && duration > 0 ? (newDistance / (duration / 3600)) : 0;
         
-        // Aggiorna velocità massima
-        const maxSpeed = Math.max(get().maxSpeed, speedInKmh);
+        // Aggiorna velocità massima (limitata a valori realistici)
+        const maxSpeed = Math.min(Math.max(get().maxSpeed, speedInKmh), 150);
         
         // Aggiorna altitudine massima
         const maxAltitude = Math.max(get().maxAltitude, currentAltitude);
@@ -230,7 +234,7 @@ export const useSessionStore = create<SessionState>()(
             day: 'numeric'
           }),
           distance: parseFloat(distance.toFixed(2)),
-          duration: Math.round(duration), // Salviamo i secondi invece di convertirli in minuti
+          duration: Math.round(duration), // Salviamo i secondi come secondi, senza conversione
           maxSpeed: parseFloat(maxSpeed.toFixed(1)),
           avgSpeed: parseFloat(averageSpeed.toFixed(1)),
           maxAltitude: Math.round(maxAltitude),
@@ -239,12 +243,12 @@ export const useSessionStore = create<SessionState>()(
           slopeLevel: determineSlopeLevel(maxSpeed, distance)
         };
         
+        console.log("Salvando sessione con durata (secondi):", newSession.duration);
+        
         // Aggiungi la sessione all'elenco delle sessioni salvate
         set((state) => ({ 
           savedSessions: [newSession, ...state.savedSessions]
         }));
-        
-        console.log("Sessione salvata:", newSession);
         
         toast({
           title: "Sessione salvata",

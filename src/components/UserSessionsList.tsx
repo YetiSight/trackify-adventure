@@ -20,6 +20,21 @@ const getSlopeColor = (level: string | undefined) => {
   }
 };
 
+// Funzione helper per formattare correttamente la durata in ore, minuti e secondi
+const formatSessionDuration = (seconds: number) => {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+  
+  if (hours > 0) {
+    return `${hours}h ${minutes}m ${secs}s`;
+  } else if (minutes > 0) {
+    return `${minutes}m ${secs}s`;
+  } else {
+    return `${secs}s`;
+  }
+};
+
 const UserSessionsList: React.FC<UserSessionsListProps> = ({ sessions }) => {
   // Verifica se sessions è undefined o null
   const validSessions = sessions ? sessions : [];
@@ -62,7 +77,7 @@ const UserSessionsList: React.FC<UserSessionsListProps> = ({ sessions }) => {
                       <Clock className="w-4 h-4" />
                       <span>Durata</span>
                     </div>
-                    <span className="font-semibold">{formatTime(session.duration)}</span>
+                    <span className="font-semibold">{formatSessionDuration(session.duration)}</span>
                   </div>
                   
                   <div className="flex flex-col">
