@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { SensorData } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Gauge, Thermometer, Navigation, LocateFixed, Cloud } from "lucide-react";
+import { Gauge, Mountain, Navigation, LocateFixed, Cloud } from "lucide-react";
 import { useArduinoStore } from "@/services/ArduinoService";
 import { getCurrentSensorData } from "@/utils/mockData";
 
@@ -66,7 +66,7 @@ const CurrentSessionCard: React.FC<CurrentSessionCardProps> = ({ sensorData: pro
           <div className="bg-snow-50 dark:bg-gray-800 p-4 rounded-lg">
             <div className="flex justify-between items-center mb-2">
               <div className="flex items-center gap-2">
-                <Thermometer className="h-5 w-5 text-snow-700 dark:text-snow-400" />
+                <Mountain className="h-5 w-5 text-snow-700 dark:text-snow-400" />
                 <h4 className="font-medium">Altitudine</h4>
               </div>
               <span className="text-2xl font-bold text-snow-700 dark:text-snow-300">

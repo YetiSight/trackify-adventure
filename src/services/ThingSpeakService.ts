@@ -109,8 +109,8 @@ export const predefinedChannels: ThingSpeakChannel[] = [
     fields: {
       "1": "ultrasonic.distance",
       "2": "imu.orientation.pitch",
-      "3": "imu.orientation.roll",
-      "4": "imu.altitude",
+      "3": "imu.altitude", // This maps field3 to altitude
+      "4": "imu.orientation.roll",
       "5": "gps.position.lat",
       "6": "gps.position.lng",
       "7": "gps.speed",
@@ -128,7 +128,8 @@ export const predefinedChannels: ThingSpeakChannel[] = [
       "3": "gps.speed",
       "4": "gps.heading",
       "5": "pir.detected",
-      "6": "ultrasonic.distance"
+      "6": "ultrasonic.distance",
+      "7": "imu.altitude" // Added altitude mapping for this channel
     }
   }
 ];
@@ -144,7 +145,7 @@ export function getDefaultFieldMapping(): ThingSpeakChannel['fields'] {
     "1": "gps.position.lat",
     "2": "gps.position.lng",
     "3": "gps.speed",
-    "4": "imu.altitude",
+    "4": "imu.altitude", // Make sure altitude is included in the default mapping
     "5": "imu.orientation.roll",
     "6": "imu.orientation.pitch",
     "7": "ultrasonic.distance",
@@ -168,6 +169,7 @@ export function setupThingSpeakPolling(
     try {
       const data = await fetchThingSpeakData(channelId, apiKey);
       const sensorData = mapThingSpeakToSensorData(data, fieldMapping);
+      console.log("Mapped sensor data:", sensorData); // Log the mapped data to verify altitude
       onDataReceived(sensorData);
     } catch (error) {
       // Error is already logged and notified in fetchThingSpeakData
