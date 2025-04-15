@@ -51,52 +51,48 @@ const AltitudeChart: React.FC = () => {
   const maxYAxis = Math.max(...chartData.map(d => d.altitude)) + 10;
   
   return (
-    <Card>
-      <CardHeader>
+    <Card className="w-full h-full">
+      <CardHeader className="pb-2">
         <CardTitle>Grafico Altitudine</CardTitle>
         <CardDescription>
           Altitudine in tempo reale (m) - Max: {maxAltitude}m
         </CardDescription>
       </CardHeader>
-      <CardContent className="h-64">
-        <ChartContainer
-          config={{
-            altitude: {
-              label: "Altitudine",
-              theme: {
-                light: "#6366f1",
-                dark: "#818cf8",
-              },
-            },
-          }}
-        >
-          <AreaChart
-            data={chartData}
-            margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="time" />
-            <YAxis 
-              domain={[minAltitude, maxYAxis]}
-              tickFormatter={(value) => `${value}m`}
-            />
-            <ChartTooltip
-              content={
-                <ChartTooltipContent
-                  indicator="dot"
-                  formatter={(value) => [`${value}m`, "Altitudine"]}
-                />
-              }
-            />
-            <Area 
-              type="monotone" 
-              dataKey="altitude" 
-              stroke="#6366f1" 
-              fill="#c4b5fd" 
-              name="Altitudine"
-            />
-          </AreaChart>
-        </ChartContainer>
+      <CardContent>
+        <div className="w-full h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart
+              data={chartData}
+              margin={{ top: 5, right: 5, left: 0, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="time" />
+              <YAxis 
+                domain={[minAltitude, maxYAxis]}
+                tickFormatter={(value) => `${value}m`}
+              />
+              <Tooltip 
+                content={({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    return (
+                      <div className="bg-white p-2 border border-gray-200 shadow-sm rounded-md">
+                        <p className="font-medium">{`${payload[0].value}m`}</p>
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
+              />
+              <Area 
+                type="monotone" 
+                dataKey="altitude" 
+                stroke="#6366f1" 
+                fill="#c4b5fd" 
+                name="Altitudine"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
       </CardContent>
     </Card>
   );
