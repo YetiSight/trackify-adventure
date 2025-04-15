@@ -60,7 +60,8 @@ export function mapThingSpeakToSensorData(data: any, fieldMapping: ThingSpeakCha
       speed: 0,
       heading: 0,
       accuracy: 0
-    }
+    },
+    collisionRisk: false // Add the collision risk field
   };
 
   // Map ThingSpeak fields to sensor data
@@ -73,7 +74,7 @@ export function mapThingSpeakToSensorData(data: any, fieldMapping: ThingSpeakCha
       if (isNaN(value)) continue;
       
       // Special handling for boolean values
-      if (path.includes('pir.detected')) {
+      if (path.includes('pir.detected') || path.includes('collisionRisk')) {
         setNestedProperty(sensorData, path, value > 0);
       } else {
         setNestedProperty(sensorData, path, value);
@@ -114,7 +115,7 @@ export const predefinedChannels: ThingSpeakChannel[] = [
       "2": "imu.orientation.pitch",
       "3": "imu.altitude", // Field3 maps to altitude
       "4": "imu.orientation.roll",
-      "5": "gps.position.lat",
+      "5": "collisionRisk", // Field5 maps to collision risk
       "6": "gps.position.lng",
       "7": "gps.speed",
       "8": "gps.heading"
@@ -130,7 +131,7 @@ export const predefinedChannels: ThingSpeakChannel[] = [
       "2": "gps.position.lng",
       "3": "imu.altitude", // Updated: Field3 is now mapped to altitude (250-350m range)
       "4": "gps.heading",
-      "5": "pir.detected",
+      "5": "collisionRisk", // Field5 maps to collision risk
       "6": "ultrasonic.distance",
       "7": "gps.speed" // Updated: Field7 is now mapped to speed
     }
@@ -149,7 +150,7 @@ export function getDefaultFieldMapping(): ThingSpeakChannel['fields'] {
     "2": "gps.position.lng",
     "3": "gps.speed",
     "4": "imu.altitude", // Default mapping for altitude
-    "5": "imu.orientation.roll",
+    "5": "collisionRisk", // Default mapping for collision risk
     "6": "imu.orientation.pitch",
     "7": "ultrasonic.distance",
     "8": "pir.detected"
@@ -190,6 +191,11 @@ export function setupThingSpeakPolling(
           const baseAltitude = 250; // Base altitude in the range you mentioned
           const speedFactor = parseFloat(data.field7) / 10;
           sensorData.imu.altitude = baseAltitude + speedFactor;
+        }
+        
+        // Make sure to map field5 to collision risk for this channel
+        if (data.field5 !== undefined) {
+          sensorData.collisionRisk = parseFloat(data.field5) > 0;
         }
       }
       

@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Gauge, Timer, Route, ArrowUp, Activity, Mountain } from "lucide-react";
+import { Gauge, Timer, Route, ArrowUp, Activity, Mountain, AlertTriangle } from "lucide-react";
 import { useSessionStore } from "@/services/SessionService";
 import StatCard from "@/components/StatCard";
 
@@ -13,7 +13,8 @@ const SessionStats: React.FC = () => {
     averageSpeed, 
     maxSpeed, 
     currentSpeed,
-    maxAltitude 
+    maxAltitude,
+    collisionRisks 
   } = useSessionStore();
 
   // Formatta la durata in formato mm:ss o hh:mm:ss
@@ -71,6 +72,13 @@ const SessionStats: React.FC = () => {
         value={`${maxAltitude.toFixed(0)} m`}
         icon={<Mountain className="h-5 w-5 text-indigo-600" />}
         color="indigo"
+      />
+      
+      <StatCard
+        title="Rischi Collisione"
+        value={collisionRisks}
+        icon={<AlertTriangle className="h-5 w-5 text-orange-600" />}
+        color="orange"
       />
     </div>
   );

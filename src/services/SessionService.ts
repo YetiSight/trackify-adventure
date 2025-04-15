@@ -24,6 +24,10 @@ interface SessionState {
   startAltitude: number | null;  // in metri
   maxAltitude: number;  // in metri
   
+  // Metriche di collisione
+  collisionRisks: number; // Contatore dei rischi collisione
+  lastCollisionRiskState: boolean; // Stato precedente del rischio collisione
+  
   // Sessioni salvate
   savedSessions: Session[];
   
@@ -63,6 +67,8 @@ export const useSessionStore = create<SessionState>()(
       currentSpeed: 0,
       startAltitude: null,
       maxAltitude: 0,
+      collisionRisks: 0,
+      lastCollisionRiskState: false,
       savedSessions: [],
       
       startSession: () => {
@@ -89,6 +95,8 @@ export const useSessionStore = create<SessionState>()(
           currentSpeed: 0,
           startAltitude: null,
           maxAltitude: 0,
+          collisionRisks: 0,
+          lastCollisionRiskState: false,
         });
         
         toast({
@@ -125,6 +133,8 @@ export const useSessionStore = create<SessionState>()(
           currentSpeed: 0,
           startAltitude: null,
           maxAltitude: 0,
+          collisionRisks: 0,
+          lastCollisionRiskState: false,
         });
       },
       
@@ -138,36 +148,62 @@ export const useSessionStore = create<SessionState>()(
       },
       
       updateWithSensorData: (data: SensorData) => {
-        if (!get().isActive || !data.gps) return;
+        if (!get().isActive) return;
         
-        const { path, startTime, distance } = get();
-        const currentPoint = data.gps.position;
-        const currentAltitude = data.imu?.altitude || 0;
+        const currentState = get();
         
         // Aggiorna la durata
         const now = Date.now();
-        const duration = startTime ? Math.round((now - startTime) / 1000) : 0; // in secondi, arrotondato
+        const duration = currentState.startTime ? Math.round((now - currentState.startTime) / 1000) : 0;
+        
+        // Gestione del contatore rischi collisione
+        let collisionRisks = currentState.collisionRisks;
+        
+        // Verifica se c'è stato un cambiamento nel rischio collisione da 0 a 1
+        if (data.collisionRisk && !currentState.lastCollisionRiskState) {
+          collisionRisks += 1;
+          console.log("Nuovo rischio collisione rilevato! Totale:", collisionRisks);
+        }
+        
+        // Se non ci sono dati GPS validi, aggiorna solo il contatore collisioni e la durata
+        if (!data.gps || !data.gps.position) {
+          set({ 
+            duration, 
+            collisionRisks, 
+            lastCollisionRiskState: data.collisionRisk || false 
+          });
+          return;
+        }
+        
+        const currentPoint = data.gps.position;
+        const currentAltitude = data.imu?.altitude || 0;
         
         // Controlla se è la prima posizione GPS
-        if (path.length === 0) {
+        if (currentState.path.length === 0) {
           // Salva la prima posizione
           set({
             path: [{ ...currentPoint, timestamp: now, altitude: currentAltitude }],
             startAltitude: currentAltitude,
             maxAltitude: currentAltitude,
             duration,
+            collisionRisks,
+            lastCollisionRiskState: data.collisionRisk || false
           });
           return;
         }
         
         // Calcola la distanza dal punto precedente
-        const lastPoint = path[path.length - 1];
+        const lastPoint = currentState.path[currentState.path.length - 1];
         const segmentDistance = calculateDistance(lastPoint, currentPoint);
         
         // Verifica se la posizione è cambiata in modo significativo (per evitare micromovimenti)
         if (segmentDistance < 0.001) {
-          // Aggiorna solo la durata se il movimento è troppo piccolo
-          set({ duration });
+          // Aggiorna solo la durata e il contatore collisioni se il movimento è troppo piccolo
+          set({ 
+            duration, 
+            collisionRisks, 
+            lastCollisionRiskState: data.collisionRisk || false 
+          });
           return;
         }
         
@@ -179,8 +215,8 @@ export const useSessionStore = create<SessionState>()(
         speedInKmh = Math.min(speedInKmh, 150);
         
         // Aggiorna il percorso e la distanza totale
-        const newDistance = distance + segmentDistance;
-        const newPath = [...path, { 
+        const newDistance = currentState.distance + segmentDistance;
+        const newPath = [...currentState.path, { 
           ...currentPoint, 
           timestamp: now, 
           speed: speedInKmh,
@@ -188,13 +224,13 @@ export const useSessionStore = create<SessionState>()(
         }];
         
         // Calcola velocità media
-        const avgSpeed = startTime && duration > 0 ? (newDistance / (duration / 3600)) : 0;
+        const avgSpeed = currentState.startTime && duration > 0 ? (newDistance / (duration / 3600)) : 0;
         
         // Aggiorna velocità massima (limitata a valori realistici)
-        const maxSpeed = Math.min(Math.max(get().maxSpeed, speedInKmh), 150);
+        const maxSpeed = Math.min(Math.max(currentState.maxSpeed, speedInKmh), 150);
         
         // Aggiorna altitudine massima
-        const maxAltitude = Math.max(get().maxAltitude, currentAltitude);
+        const maxAltitude = Math.max(currentState.maxAltitude, currentAltitude);
         
         // Aggiorna lo stato
         set({
@@ -205,6 +241,8 @@ export const useSessionStore = create<SessionState>()(
           maxSpeed,
           currentSpeed: speedInKmh,
           maxAltitude,
+          collisionRisks,
+          lastCollisionRiskState: data.collisionRisk || false
         });
       },
       
@@ -216,7 +254,8 @@ export const useSessionStore = create<SessionState>()(
           maxSpeed, 
           maxAltitude, 
           path, 
-          startAltitude 
+          startAltitude,
+          collisionRisks 
         } = get();
         
         // Verifica che ci siano dati sufficienti per salvare la sessione
@@ -245,7 +284,8 @@ export const useSessionStore = create<SessionState>()(
           maxAltitude: Math.round(maxAltitude),
           altitudeDifference: startAltitude ? Math.round(maxAltitude - startAltitude) : 0,
           path: path,
-          slopeLevel: determineSlopeLevel(maxSpeed, distance)
+          slopeLevel: determineSlopeLevel(maxSpeed, distance),
+          collisionRisks: collisionRisks // Salva il conteggio delle collisioni nella sessione
         };
         
         console.log("Salvando sessione con durata (secondi):", newSession.duration);

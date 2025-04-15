@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { SensorData } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Gauge, Mountain, Navigation, LocateFixed, Cloud } from "lucide-react";
+import { Gauge, Mountain, Navigation, LocateFixed, Cloud, AlertTriangle } from "lucide-react";
 import { useArduinoStore } from "@/services/ArduinoService";
 import { getCurrentSensorData } from "@/utils/mockData";
 
@@ -126,7 +126,7 @@ const CurrentSessionCard: React.FC<CurrentSessionCardProps> = ({ sensorData: pro
             <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
             <h4 className="font-medium">Sensori di prossimità</h4>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div>
               <span className="text-xs text-gray-500 block">Distanza oggetti</span>
               <span className="font-medium">{(displayData.ultrasonic.distance / 100).toFixed(1)}m</span>
@@ -143,6 +143,18 @@ const CurrentSessionCard: React.FC<CurrentSessionCardProps> = ({ sensorData: pro
                   <span className="text-amber-600 dark:text-amber-400">Sì</span>
                 ) : (
                   <span className="text-gray-500">No</span>
+                )}
+              </span>
+            </div>
+            <div>
+              <span className="text-xs text-gray-500 block">Rischio collisione</span>
+              <span className="font-medium">
+                {displayData.collisionRisk ? (
+                  <span className="text-red-600 dark:text-red-400 flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3" /> Sì
+                  </span>
+                ) : (
+                  <span className="text-green-600 dark:text-green-400">No</span>
                 )}
               </span>
             </div>

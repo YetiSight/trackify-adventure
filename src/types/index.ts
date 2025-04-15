@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   name: string;
@@ -20,6 +21,7 @@ export interface Session {
   altitudeDifference: number; // in meters
   path?: GeoPoint[];
   slopeLevel?: "easy" | "medium" | "hard" | "extreme";
+  collisionRisks?: number; // Number of collision risks detected
 }
 
 export interface GeoPoint {
@@ -74,6 +76,7 @@ export interface SensorData {
     heading: number; // in degrees
     accuracy: number; // in meters
   };
+  collisionRisk?: boolean; // Whether there is a risk of collision
 }
 
 export interface Event {
