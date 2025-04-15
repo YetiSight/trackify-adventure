@@ -1,4 +1,3 @@
-
 import React from "react";
 import { create } from "zustand";
 import { GeoPoint, SensorData, Session } from "@/types";
@@ -177,14 +176,22 @@ export const useSessionStore = create<SessionState>()(
         
         const currentPoint = data.gps.position;
         const currentAltitude = data.imu?.altitude || 0;
+        const currentSpeed = data.gps.speed; // Usa direttamente la velocità dai dati del sensore (field7)
         
         // Controlla se è la prima posizione GPS
         if (currentState.path.length === 0) {
           // Salva la prima posizione
           set({
-            path: [{ ...currentPoint, timestamp: now, altitude: currentAltitude }],
+            path: [{ 
+              ...currentPoint, 
+              timestamp: now, 
+              altitude: currentAltitude,
+              speed: currentSpeed 
+            }],
             startAltitude: currentAltitude,
             maxAltitude: currentAltitude,
+            currentSpeed: currentSpeed,
+            maxSpeed: currentSpeed,
             duration,
             collisionRisks,
             lastCollisionRiskState: data.collisionRisk || false
@@ -198,36 +205,33 @@ export const useSessionStore = create<SessionState>()(
         
         // Verifica se la posizione è cambiata in modo significativo (per evitare micromovimenti)
         if (segmentDistance < 0.001) {
-          // Aggiorna solo la durata e il contatore collisioni se il movimento è troppo piccolo
+          // Aggiorna la velocità corrente e potenzialmente la velocità massima, anche se il movimento è piccolo
+          const newMaxSpeed = Math.max(currentState.maxSpeed, currentSpeed);
+          
           set({ 
-            duration, 
+            duration,
+            currentSpeed,
+            maxSpeed: newMaxSpeed,
             collisionRisks, 
             lastCollisionRiskState: data.collisionRisk || false 
           });
           return;
         }
         
-        // Calcola la nuova velocità istantanea (limita a valori realistici)
-        const timeDiff = (now - (lastPoint.timestamp || now)) / 1000; // in secondi
-        let speedInKmh = timeDiff > 0 ? (segmentDistance / timeDiff) * 3600 : 0;
-        
-        // Limita la velocità a valori realistici per lo sci (max 150 km/h)
-        speedInKmh = Math.min(speedInKmh, 150);
-        
         // Aggiorna il percorso e la distanza totale
         const newDistance = currentState.distance + segmentDistance;
         const newPath = [...currentState.path, { 
           ...currentPoint, 
           timestamp: now, 
-          speed: speedInKmh,
+          speed: currentSpeed,
           altitude: currentAltitude 
         }];
         
-        // Calcola velocità media
+        // Calcola velocità media - usando ora la durata in ore per il calcolo
         const avgSpeed = currentState.startTime && duration > 0 ? (newDistance / (duration / 3600)) : 0;
         
-        // Aggiorna velocità massima (limitata a valori realistici)
-        const maxSpeed = Math.min(Math.max(currentState.maxSpeed, speedInKmh), 150);
+        // Aggiorna velocità massima
+        const maxSpeed = Math.max(currentState.maxSpeed, currentSpeed);
         
         // Aggiorna altitudine massima
         const maxAltitude = Math.max(currentState.maxAltitude, currentAltitude);
@@ -239,7 +243,7 @@ export const useSessionStore = create<SessionState>()(
           duration,
           averageSpeed: avgSpeed,
           maxSpeed,
-          currentSpeed: speedInKmh,
+          currentSpeed,
           maxAltitude,
           collisionRisks,
           lastCollisionRiskState: data.collisionRisk || false
