@@ -11,7 +11,7 @@ import {
 } from "./ThingSpeakService";
 
 type ArduinoConnectionState = "disconnected" | "connecting" | "connected" | "error";
-type ConnectionMode = "direct" | "remote" | "thingspeak";
+type ConnectionMode = "direct" | "remote" | "thingspeak" | "test";
 type SecureMode = "secure" | "insecure";
 type ConnectionError = null | "forbidden" | "timeout" | "network" | "invalid_ip" | "unknown";
 
@@ -30,6 +30,8 @@ interface ArduinoState {
   connectToThingSpeak: (channelId: number, apiKey: string) => void;
   disconnectFromArduino: () => void;
   setSensorData: (data: SensorData) => void;
+  setConnectionState: (state: ArduinoConnectionState) => void;
+  setConnectionMode: (mode: ConnectionMode) => void;
   reconnectWithInsecure: (ipAddress: string, port: string) => void;
 }
 
@@ -44,6 +46,9 @@ export const useArduinoStore = create<ArduinoState>((set, get) => ({
   thingspeakCleanup: null,
   thingspeakChannelId: null,
   thingspeakApiKey: null,
+  
+  setConnectionState: (state: ArduinoConnectionState) => set({ connectionState: state }),
+  setConnectionMode: (mode: ConnectionMode) => set({ connectionMode: mode }),
   
   connectToArduino: (ipAddress: string, port = "80", mode = "direct", secure = "secure") => {
     const { connection, thingspeakCleanup } = get();

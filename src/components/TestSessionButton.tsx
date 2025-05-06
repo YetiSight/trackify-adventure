@@ -12,7 +12,11 @@ const TestSessionButton: React.FC = () => {
   const [isTestRunning, setIsTestRunning] = useState(false);
   const [testIntervalId, setTestIntervalId] = useState<number | null>(null);
   const { toast } = useToast();
-  const { setSensorData, setConnectionState, setConnectionMode } = useArduinoStore();
+  const { 
+    setSensorData, 
+    setConnectionState, 
+    setConnectionMode 
+  } = useArduinoStore();
   const { isActive, startSession } = useSessionStore();
 
   const startTestSession = () => {
@@ -20,7 +24,7 @@ const TestSessionButton: React.FC = () => {
     
     // Set initial connection state to simulate ThingSpeak connection
     setConnectionState("connected");
-    setConnectionMode("thingspeak");
+    setConnectionMode("test");
     
     // Start the session in SessionService
     if (!isActive) {
