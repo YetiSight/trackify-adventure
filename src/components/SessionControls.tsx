@@ -13,7 +13,7 @@ const SessionControls: React.FC = () => {
   const { toast } = useToast();
   
   const isConnected = connectionState === "connected";
-  const isThinkspeakConnected = isConnected && connectionMode === "thingspeak";
+  const isThinkspeakConnected = isConnected && (connectionMode === "thingspeak" || connectionMode === "test");
 
   const handleTerminateSession = () => {
     if (isActive) {
@@ -31,7 +31,7 @@ const SessionControls: React.FC = () => {
         <Alert variant="destructive" className="mb-4">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            Per avviare una sessione, devi prima connetterti a ThingSpeak.
+            Per avviare una sessione, devi prima connetterti a ThingSpeak o avviare una sessione di test.
           </AlertDescription>
         </Alert>
       )}

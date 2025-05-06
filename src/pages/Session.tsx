@@ -12,6 +12,7 @@ import { useSessionUpdater } from "@/services/SessionService";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import MapView from "@/components/MapView";
+import TestSessionButton from "@/components/TestSessionButton";
 
 const Session: React.FC = () => {
   // Inizializza l'aggiornamento automatico della sessione
@@ -44,6 +45,10 @@ const Session: React.FC = () => {
               <ArduinoConnect />
               <Separator />
               <SessionControls />
+              <Separator />
+              <div className="flex justify-center">
+                <TestSessionButton />
+              </div>
             </CardContent>
           </Card>
           
