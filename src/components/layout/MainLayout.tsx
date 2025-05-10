@@ -10,7 +10,8 @@ import {
   X,
   Users,
   Calendar,
-  Activity
+  Activity,
+  LogIn
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -26,6 +27,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   const notifications = getNotifications();
+
+  // Mock authentication state - In a real app, this would come from your auth system
+  const isAuthenticated = true; // Set to false to test unauthenticated view
 
   const navItems = [
     {
@@ -83,16 +87,40 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           </div>
           
           <div className="flex items-center space-x-2">
-            <NotificationsDropdown notifications={notifications} />
-            
-            <Button 
-              variant="ghost" 
-              size="icon"
-              className="md:hidden"
-              onClick={toggleMenu}
-            >
-              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
+            {isAuthenticated ? (
+              <>
+                <NotificationsDropdown notifications={notifications} />
+                
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="md:hidden"
+                  onClick={toggleMenu}
+                >
+                  {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                </Button>
+              </>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Link to="/login">
+                  <Button variant="outline" size="sm" className="hidden sm:flex">
+                    <LogIn className="h-4 w-4 mr-2" />
+                    Accedi
+                  </Button>
+                </Link>
+                <Link to="/register">
+                  <Button size="sm">Registrati</Button>
+                </Link>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="md:hidden"
+                  onClick={toggleMenu}
+                >
+                  {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </header>
@@ -138,6 +166,20 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     <span>{item.name}</span>
                   </Link>
                 ))}
+                
+                {!isAuthenticated && (
+                  <div className="mt-6 px-4">
+                    <Link to="/login">
+                      <Button variant="outline" className="w-full mb-2">
+                        <LogIn className="h-4 w-4 mr-2" />
+                        Accedi
+                      </Button>
+                    </Link>
+                    <Link to="/register">
+                      <Button className="w-full">Registrati</Button>
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
             <div 

@@ -14,6 +14,8 @@ import EventDetail from "./pages/EventDetail";
 import NotFound from "./pages/NotFound";
 import Notifications from "./pages/Notifications";
 import Session from "./pages/Session";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +35,8 @@ const App = () => (
           <Route path="/events/:eventId" element={<EventDetail />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/session" element={<Session />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
