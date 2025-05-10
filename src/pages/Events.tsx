@@ -40,9 +40,9 @@ const Events: React.FC = () => {
     <MainLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Eventi SafeSight</h1>
+          <h1 className="text-3xl font-bold mb-2">Eventi YetiSight</h1>
           <p className="text-muted-foreground">
-            Scopri gli eventi organizzati da SafeSight nei migliori impianti sciistici
+            Scopri gli eventi organizzati da YetiSight nei migliori impianti sciistici
           </p>
         </div>
 

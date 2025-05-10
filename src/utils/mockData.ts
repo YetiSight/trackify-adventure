@@ -279,8 +279,8 @@ export const mockSponsors: Sponsor[] = [
 export const mockEvents: Event[] = [
   {
     id: "e1",
-    title: "Gara di discesa libera SafeSight",
-    description: "Partecipa alla gara di discesa libera sponsorizzata da Red Bull. Premi per i primi 3 classificati. Registra la tua discesa con l'app SafeSight!\n\nL'evento è aperto a sciatori di tutti i livelli, con categorie separate per principianti, intermedi ed esperti. I partecipanti dovranno indossare il dispositivo SafeSight per monitorare la loro performance e garantire la sicurezza durante la discesa.\n\nVieni a metterti alla prova e dimostra le tue abilità sugli sci!",
+    title: "Gara di discesa libera YetiSight",
+    description: "Partecipa alla gara di discesa libera sponsorizzata da Red Bull. Premi per i primi 3 classificati. Registra la tua discesa con l'app YetiSight!\n\nL'evento è aperto a sciatori di tutti i livelli, con categorie separate per principianti, intermedi ed esperti. I partecipanti dovranno indossare il dispositivo YetiSight per monitorare la loro performance e garantire la sicurezza durante la discesa.\n\nVieni a metterti alla prova e dimostra le tue abilità sugli sci!",
     date: "2024-07-15",
     time: "10:00",
     skiResort: "Cortina d'Ampezzo",
@@ -291,7 +291,7 @@ export const mockEvents: Event[] = [
   {
     id: "e2",
     title: "Workshop Sicurezza in montagna",
-    description: "Workshop gratuito sulla sicurezza in montagna con esperti del settore. Impara a utilizzare SafeSight per aumentare la tua sicurezza sulle piste.\n\nDurante il workshop verranno trattati temi come la prevenzione degli incidenti, le tecniche di autosoccorso e l'utilizzo delle funzionalità avanzate dell'app SafeSight per monitorare l'ambiente circostante e rilevare potenziali pericoli.\n\nIl workshop è adatto sia ai principianti che agli sciatori esperti.",
+    description: "Workshop gratuito sulla sicurezza in montagna con esperti del settore. Impara a utilizzare YetiSight per aumentare la tua sicurezza sulle piste.\n\nDurante il workshop verranno trattati temi come la prevenzione degli incidenti, le tecniche di autosoccorso e l'utilizzo delle funzionalità avanzate dell'app YetiSight per monitorare l'ambiente circostante e rilevare potenziali pericoli.\n\nIl workshop è adatto sia ai principianti che agli sciatori esperti.",
     date: "2024-07-20",
     time: "14:30",
     skiResort: "Cortina d'Ampezzo",
@@ -301,8 +301,8 @@ export const mockEvents: Event[] = [
   },
   {
     id: "e3",
-    title: "SafeSight Snow Night",
-    description: "Serata sulla neve con discesa notturna assistita dal sistema SafeSight. DJ set e rinfresco offerto da Salomon.\n\nVivi l'emozione di sciare sotto le stelle con la sicurezza garantita dal sistema di rilevamento SafeSight. Le piste saranno illuminate e monitorate dai nostri operatori per garantire la massima sicurezza.\n\nDopo la discesa, unisciti a noi per un rinfresco e musica con DJ set presso il rifugio Patascoss.",
+    title: "YetiSight Snow Night",
+    description: "Serata sulla neve con discesa notturna assistita dal sistema YetiSight. DJ set e rinfresco offerto da Salomon.\n\nVivi l'emozione di sciare sotto le stelle con la sicurezza garantita dal sistema di rilevamento YetiSight. Le piste saranno illuminate e monitorate dai nostri operatori per garantire la massima sicurezza.\n\nDopo la discesa, unisciti a noi per un rinfresco e musica con DJ set presso il rifugio Patascoss.",
     date: "2024-07-25",
     time: "19:00",
     skiResort: "Madonna di Campiglio",
@@ -312,8 +312,8 @@ export const mockEvents: Event[] = [
   },
   {
     id: "e4",
-    title: "Test Equipment SafeSight",
-    description: "Prova gratuita dei sensori SafeSight con i nostri tecnici. Scopri come migliorare la tua sicurezza sulle piste.\n\nI nostri esperti ti guideranno nell'installazione e configurazione del sistema SafeSight sui tuoi dispositivi. Potrai testare tutte le funzionalità avanzate come il rilevamento ostacoli, la rilevazione di movimenti anomali e il sistema di allarme di emergenza.\n\nPrendi parte a una breve sessione di test sulle piste per sperimentare il sistema in azione!",
+    title: "Test Equipment YetiSight",
+    description: "Prova gratuita dei sensori YetiSight con i nostri tecnici. Scopri come migliorare la tua sicurezza sulle piste.\n\nI nostri esperti ti guideranno nell'installazione e configurazione del sistema YetiSight sui tuoi dispositivi. Potrai testare tutte le funzionalità avanzate come il rilevamento ostacoli, la rilevazione di movimenti anomali e il sistema di allarme di emergenza.\n\nPrendi parte a una breve sessione di test sulle piste per sperimentare il sistema in azione!",
     date: "2024-07-30",
     time: "09:30",
     skiResort: "Madonna di Campiglio",
@@ -324,7 +324,7 @@ export const mockEvents: Event[] = [
   {
     id: "e5",
     title: "Competizione Freeride",
-    description: "Gara di freeride con tracciamento SafeSight. Partecipazione gratuita per tutti gli utenti dell'app.\n\nMetti alla prova le tue abilità in fuoripista in totale sicurezza grazie alla tecnologia SafeSight. I partecipanti saranno valutati per tecnica, stile e creatività. Il sistema SafeSight monitorerà il percorso e le performance, fornendo dati dettagliati che saranno utilizzati per la classifica finale.\n\nIscrizione gratuita per tutti gli utenti dell'app SafeSight!",
+    description: "Gara di freeride con tracciamento YetiSight. Partecipazione gratuita per tutti gli utenti dell'app.\n\nMetti alla prova le tue abilità in fuoripista in totale sicurezza grazie alla tecnologia YetiSight. I partecipanti saranno valutati per tecnica, stile e creatività. Il sistema YetiSight monitorerà il percorso e le performance, fornendo dati dettagliati che saranno utilizzati per la classifica finale.\n\nIscrizione gratuita per tutti gli utenti dell'app YetiSight!",
     date: "2024-08-05",
     time: "11:00",
     skiResort: "Livigno",
@@ -334,8 +334,8 @@ export const mockEvents: Event[] = [
   },
   {
     id: "e6",
-    title: "Demo Day - Novità SafeSight",
-    description: "Presentazione delle nuove funzionalità dell'app SafeSight con possibilità di test sul campo.\n\nScopri in anteprima le nuove funzionalità dell'app SafeSight e prova sul campo i nuovi sensori di rilevamento avanzato. I nostri ingegneri saranno disponibili per rispondere a tutte le tue domande e raccogliere feedback per migliorare ulteriormente il sistema.\n\nPartecipando riceverai un coupon sconto del 20% per l'acquisto o l'aggiornamento del tuo dispositivo SafeSight.",
+    title: "Demo Day - Novità YetiSight",
+    description: "Presentazione delle nuove funzionalità dell'app YetiSight con possibilità di test sul campo.\n\nScopri in anteprima le nuove funzionalità dell'app YetiSight e prova sul campo i nuovi sensori di rilevamento avanzato. I nostri ingegneri saranno disponibili per rispondere a tutte le tue domande e raccogliere feedback per migliorare ulteriormente il sistema.\n\nPartecipando riceverai un coupon sconto del 20% per l'acquisto o l'aggiornamento del tuo dispositivo YetiSight.",
     date: "2024-08-10",
     time: "10:00",
     skiResort: "Livigno",

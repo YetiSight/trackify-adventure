@@ -57,7 +57,7 @@ const EventDetail: React.FC = () => {
   
   const handleShare = (platform: string) => {
     const url = window.location.href;
-    const text = `Partecipa all'evento SafeSight: ${event.title}`;
+    const text = `Partecipa all'evento YetiSight: ${event.title}`;
     
     let shareUrl = "";
     
@@ -163,7 +163,7 @@ const EventDetail: React.FC = () => {
                 <div className="pt-4">
                   <h3 className="text-lg font-semibold mb-2">Cosa portare</h3>
                   <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
-                    <li>Il tuo dispositivo SafeSight</li>
+                    <li>Il tuo dispositivo YetiSight</li>
                     <li>Equipaggiamento da sci</li>
                     <li>Abbigliamento adeguato alle condizioni meteo</li>
                     <li>Documento d'identità</li>
@@ -232,7 +232,7 @@ const EventDetail: React.FC = () => {
                 <div>
                   <h3 className="text-lg font-semibold mb-2">{event.sponsor.name}</h3>
                   <p className="text-muted-foreground">
-                    {event.sponsor.description || `${event.sponsor.name} è orgoglioso sponsor di questo evento SafeSight. Partecipando potrai scoprire i prodotti e le novità del brand.`}
+                    {event.sponsor.description || `${event.sponsor.name} è orgoglioso sponsor di questo evento YetiSight. Partecipando potrai scoprire i prodotti e le novità del brand.`}
                   </p>
                 </div>
               </CardContent>
