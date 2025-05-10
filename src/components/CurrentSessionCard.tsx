@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Gauge, Mountain, Navigation, LocateFixed, Cloud, AlertTriangle } from "lucide-react";
 import { useArduinoStore } from "@/services/ArduinoService";
 import { getCurrentSensorData } from "@/utils/mockData";
+import { Badge } from "@/components/ui/badge";
 
 interface CurrentSessionCardProps {
   sensorData?: SensorData;
@@ -32,19 +33,44 @@ const CurrentSessionCard: React.FC<CurrentSessionCardProps> = ({ sensorData: pro
         return "Dati simulati dai sensori";
       } else if (connectionMode === "thingspeak") {
         return "Dati da ThingSpeak";
+      } else if (connectionMode === "test") {
+        return "Dati di test simulati";
       }
     }
     return "Dati simulati dai sensori";
   };
+  
+  // Helper to determine connection icon and color
+  const getConnectionBadge = () => {
+    if (connectionState !== "connected") {
+      return null;
+    }
+    
+    if (connectionMode === "thingspeak") {
+      return <Badge variant="outline" className="bg-sky-100 text-sky-700 border-sky-200 flex items-center gap-1">
+        <Cloud className="h-3 w-3" /> ThingSpeak
+      </Badge>;
+    } else if (connectionMode === "test") {
+      return <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-200 flex items-center gap-1">
+        <AlertTriangle className="h-3 w-3" /> Test
+      </Badge>;
+    } else if (connectionMode === "direct") {
+      return <Badge variant="outline" className="bg-green-100 text-green-700 border-green-200 flex items-center gap-1">
+        <LocateFixed className="h-3 w-3" /> Diretto
+      </Badge>;
+    }
+    
+    return null;
+  };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Sessione Attuale</CardTitle>
+    <Card className="shadow-md">
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-center">
+          <CardTitle>Sessione Attuale</CardTitle>
+          {getConnectionBadge()}
+        </div>
         <CardDescription className="flex items-center gap-1">
-          {connectionMode === "thingspeak" && connectionState === "connected" && (
-            <Cloud className="h-4 w-4 text-sky-500" />
-          )}
           {getDataSourceDescription()}
         </CardDescription>
       </CardHeader>
@@ -60,7 +86,12 @@ const CurrentSessionCard: React.FC<CurrentSessionCardProps> = ({ sensorData: pro
                 {displayData.gps.speed.toFixed(1)} <span className="text-sm font-normal">km/h</span>
               </span>
             </div>
-            <Progress value={(displayData.gps.speed / 100) * 100} className="h-1.5" />
+            <Progress 
+              value={(displayData.gps.speed / 100) * 100} 
+              className="h-1.5" 
+              color="blue"
+              max={100}
+            />
           </div>
 
           <div className="bg-snow-50 dark:bg-gray-800 p-4 rounded-lg">
@@ -73,7 +104,12 @@ const CurrentSessionCard: React.FC<CurrentSessionCardProps> = ({ sensorData: pro
                 {displayData.imu.altitude} <span className="text-sm font-normal">m</span>
               </span>
             </div>
-            <Progress value={(displayData.imu.altitude / 3000) * 100} className="h-1.5" />
+            <Progress 
+              value={(displayData.imu.altitude / 3000) * 100} 
+              className="h-1.5"
+              color="green"
+              max={100}
+            />
           </div>
         </div>
 
@@ -123,7 +159,11 @@ const CurrentSessionCard: React.FC<CurrentSessionCardProps> = ({ sensorData: pro
 
         <div className="bg-snow-50 dark:bg-gray-800 p-4 rounded-lg">
           <div className="flex items-center gap-2 mb-2">
-            <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
+            {displayData.ultrasonic.distance < 300 || displayData.pir.detected || displayData.collisionRisk ? (
+              <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse"></div>
+            ) : (
+              <div className="h-2 w-2 rounded-full bg-green-500"></div>
+            )}
             <h4 className="font-medium">Sensori di prossimità</h4>
           </div>
           <div className="grid grid-cols-3 gap-4">
@@ -140,7 +180,9 @@ const CurrentSessionCard: React.FC<CurrentSessionCardProps> = ({ sensorData: pro
               <span className="text-xs text-gray-500 block">Movimento rilevato</span>
               <span className="font-medium">
                 {displayData.pir.detected ? (
-                  <span className="text-amber-600 dark:text-amber-400">Sì</span>
+                  <span className="text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3" /> Sì
+                  </span>
                 ) : (
                   <span className="text-gray-500">No</span>
                 )}
