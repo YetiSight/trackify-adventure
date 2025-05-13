@@ -28,9 +28,11 @@ const formSchema = z.object({
     message: "La password deve contenere almeno 6 caratteri.",
   }),
   confirmPassword: z.string(),
-  termsAccepted: z.literal(true, {
-    errorMap: () => ({ message: "Devi accettare i termini e le condizioni." }),
-  }),
+  // Changed from literal(true) to boolean() with custom refinement
+  termsAccepted: z.boolean()
+    .refine((val) => val === true, {
+      message: "Devi accettare i termini e le condizioni.",
+    }),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Le password non corrispondono.",
   path: ["confirmPassword"],
