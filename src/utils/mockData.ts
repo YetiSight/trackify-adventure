@@ -302,7 +302,7 @@ export const mockEvents: Event[] = [
   {
     id: "e3",
     title: "YetiSight Snow Night",
-    description: "Serata sulla neve con discesa notturna assistita dal sistema YetiSight. DJ set e rinfresco offerto da Salomon.\n\nVivi l'emozione di sciare sotto le stelle con la sicurezza garantita dal sistema di rilevamento YetiSight. Le piste saranno illuminate e monitorate dai nostri operatori per garantire la massima sicurezza.\n\nDopo la discesa, unisciti a noi per un rinfresco e musica con DJ set presso il rifugio Patascoss.",
+    description: "Serata sulla neve con discesa noturna assistita dal sistema YetiSight. DJ set e rinfresco offerto da Salomon.\n\nVivi l'emozione di sciare sotto le stelle con la sicurezza garantita dal sistema di rilevamento YetiSight. Le piste saranno illuminate e monitorate dai nostri operatori per garantire la massima sicurezza.\n\nDopo la discesa, unisciti a noi per un rinfresco e musica con DJ set presso il rifugio Patascoss.",
     date: "2024-07-25",
     time: "19:00",
     skiResort: "Madonna di Campiglio",
@@ -342,6 +342,28 @@ export const mockEvents: Event[] = [
     meetingPoint: "Centro Servizi Mottolino",
     sponsor: mockSponsors[1],
     image: "https://images.unsplash.com/photo-1565992441121-4367c2967103"
+  },
+  {
+    id: "e7",
+    title: "Corso Avanzato YetiSight",
+    description: "Corso intensivo sulle funzionalità avanzate del sistema YetiSight. Scopri come sfruttare al massimo il tuo dispositivo.\n\nDurante il corso verranno approfondite tutte le funzionalità del sistema YetiSight, con particolare attenzione all'analisi dei dati raccolti durante le discese e alle tecniche di prevenzione dei rischi.\n\nAl termine del corso riceverai un certificato di partecipazione e un gadget esclusivo YetiSight.",
+    date: "2024-08-15",
+    time: "14:00",
+    skiResort: "Cortina d'Ampezzo",
+    meetingPoint: "Centro Congressi Alexander Girardi Hall",
+    sponsor: mockSponsors[2],
+    image: "https://images.unsplash.com/photo-1551698618-1dfe5d97d256"
+  },
+  {
+    id: "e8",
+    title: "YetiSight Family Day",
+    description: "Giornata dedicata alle famiglie con attività e dimostrazioni del sistema YetiSight per la sicurezza dei più piccoli.\n\nUna giornata di divertimento sulla neve con giochi, animazione e dimostrazioni pratiche del sistema YetiSight pensate appositamente per i bambini e le loro famiglie.\n\nPartecipa con i tuoi figli e scopri come YetiSight può rendere le loro discese più sicure e divertenti!",
+    date: "2024-08-20",
+    time: "10:30",
+    skiResort: "Madonna di Campiglio",
+    meetingPoint: "Campo Scuola Fortini",
+    sponsor: mockSponsors[3],
+    image: "https://images.unsplash.com/photo-1564989130727-6141b8e9a936"
   }
 ];
 
