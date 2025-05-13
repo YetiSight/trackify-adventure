@@ -286,7 +286,7 @@ export const mockEvents: Event[] = [
     skiResort: "Cortina d'Ampezzo",
     meetingPoint: "Stazione di partenza Ski Area Faloria",
     sponsor: mockSponsors[0],
-    image: "https://images.unsplash.com/photo-1519677583113-44abba31621b"
+    image: "https://images.unsplash.com/photo-1469474968028-56623f02e42e"
   },
   {
     id: "e2",
@@ -319,7 +319,7 @@ export const mockEvents: Event[] = [
     skiResort: "Madonna di Campiglio",
     meetingPoint: "Ufficio Ski Pass Centrale",
     sponsor: mockSponsors[3],
-    image: "https://images.unsplash.com/photo-1548345332-61a73e8c5581"
+    image: "https://images.unsplash.com/photo-1482938289607-e9573fc25ebb"
   },
   {
     id: "e5",
@@ -330,7 +330,7 @@ export const mockEvents: Event[] = [
     skiResort: "Livigno",
     meetingPoint: "Carosello 3000",
     sponsor: mockSponsors[0],
-    image: "https://images.unsplash.com/photo-1515598379512-b4323386706c"
+    image: "https://images.unsplash.com/photo-1518495973542-4542c06a5843"
   },
   {
     id: "e6",
